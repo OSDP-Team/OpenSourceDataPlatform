@@ -28,9 +28,8 @@ metadata:
     stackable.tech/vendor: Stackable
 spec:
   image:
-    # Using an image that includes scikit-learn (among other things)
-    # because this package needs to be available on the executors.
-    custom: oci.stackable.tech/stackable/spark-connect-client:3.5.5-stackable0.0.0-dev
+    # Verwende bei Bedarf hier ein offizielles Release-Image
+    custom: oci.stackable.tech/stackable/spark-connect-client:3.5.5-stackable25.3.0
     productVersion: 3.5.5
     pullPolicy: IfNotPresent
   args:
@@ -41,6 +40,7 @@ spec:
         spark.driver.memory: "2g"
     podOverrides:
       spec:
+        serviceAccountName: spark
         containers:
           - name: spark
             env:
@@ -68,11 +68,11 @@ spec:
       spark-defaults.conf:
         spark.executor.instances: "4"
         spark.executor.memory: "3g"
-        spark.executor.memoryOverhead: "0m"
+        spark.executor.memoryOverhead: "512m"
     config:
       resources:
         memory:
-          limit: "3Gi"
+          limit: "3.5Gi"
       logging:
         enableVectorAgent: false
         containers:
