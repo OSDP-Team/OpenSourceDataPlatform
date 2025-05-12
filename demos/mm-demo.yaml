@@ -14,6 +14,6 @@ demos:
       - plainYaml: https://raw.githubusercontent.com/stackabletech/demos/main/demos/jupyterhub-keycloak/load-gas-data.yaml
     supportedNamespaces: []
     resourceRequests:
-      cpu: 6400m
+      cpu: 4000m
       memory: 12622Mi
       pvc: 20Gi
