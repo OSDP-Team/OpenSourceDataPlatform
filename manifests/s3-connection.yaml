@@ -26,6 +26,7 @@ metadata:
   name: minio-s3-credentials
   labels:
     secrets.stackable.tech/class: minio-s3-credentials
+type: Opaque
 stringData:
   accessKey: admin
-  secretKey: {{ minioAdminPassword }}
+  secretKey: {{ minioAdminPassword }}  # Wird zur Laufzeit von stackablectl ersetzt
