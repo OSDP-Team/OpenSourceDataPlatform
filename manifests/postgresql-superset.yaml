@@ -4,7 +4,7 @@ name: postgresql
 repo:
   name: bitnami
   url: https://charts.bitnami.com/bitnami/
-version: 16.5.0 # 17.4.0
+version: 16.5.0 # 17.4.0 aktuell verfügbar, aber Stackable nutzt 16.5.0
 options:
   commonLabels:
     stackable.tech/vendor: Stackable
@@ -12,3 +12,12 @@ options:
     username: superset
     password: superset
     database: superset
+  primary:
+    persistence:
+      enabled: true
+      size: 4Gi
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  architecture: standalone
