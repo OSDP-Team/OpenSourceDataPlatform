@@ -17,7 +17,6 @@ spec:
     spec:
       containers:
         - name: keycloak
-          resources: {}
           image: quay.io/keycloak/keycloak:26.1.4
           args:
             - start
@@ -49,36 +48,30 @@ spec:
             - name: tls
               mountPath: /tls/
         - name: create-configmap
-          resources: {}
           image: oci.stackable.tech/sdp/testing-tools:0.2.0-stackable0.0.0-dev
           command: ["/bin/bash", "-c"]
           args:
             - |
               pid=
-              trap 'echo SIGINT; [[ $pid ]] && kill $pid; exit' SIGINT
-              trap 'echo SIGTERM; [[ $pid ]] && kill $pid; exit' SIGTERM
-
+              trap '[[ $pid ]] && kill $pid; exit' SIGINT SIGTERM
               while :
               do
                 echo "Determining Keycloak public reachable address"
                 KEYCLOAK_ADDRESS=$(kubectl get svc keycloak -o json | jq -r --argfile endpoints <(kubectl get endpoints keycloak -o json) --argfile nodes <(kubectl get nodes -o json) '($nodes.items[] | select(.metadata.name == $endpoints.subsets[].addresses[].nodeName) | .status.addresses | map(select(.type == "ExternalIP" or .type == "InternalIP")) | min_by(.type) | .address | tostring) + ":" + (.spec.ports[] | select(.name == "https") | .nodePort | tostring)')
                 echo "Found Keycloak running at $KEYCLOAK_ADDRESS"
-
                 if [ ! -z "$KEYCLOAK_ADDRESS" ]; then
                   KEYCLOAK_HOSTNAME="$(echo $KEYCLOAK_ADDRESS | grep -oP '^[^:]+')"
                   KEYCLOAK_PORT="$(echo $KEYCLOAK_ADDRESS | grep -oP '[0-9]+$')"
-
                   cat << EOF | kubectl apply -f -
-                    apiVersion: v1
-                    kind: ConfigMap
-                    metadata:
-                      name: keycloak-address
-                    data:
-                      keycloakAddress: "$KEYCLOAK_HOSTNAME:$KEYCLOAK_PORT"
-                      keycloakNodeIp: "$KEYCLOAK_HOSTNAME"
-              EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-address
+data:
+  keycloakAddress: "$KEYCLOAK_HOSTNAME:$KEYCLOAK_PORT"
+  keycloakNodeIp: "$KEYCLOAK_HOSTNAME"
+EOF
                 fi
-
                 sleep 30 & pid=$!
                 wait
               done
@@ -104,8 +97,7 @@ spec:
                   secrets.stackable.tech/scope: service=keycloak,node
               spec:
                 storageClassName: secrets.stackable.tech
-                accessModes:
-                  - ReadWriteOnce
+                accessModes: [ReadWriteOnce]
                 resources:
                   requests:
                     storage: "1"
@@ -141,5 +133,6 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: keycloak-admin-credentials
+type: Opaque
 stringData:
   admin: "{{ keycloakAdminPassword }}"
