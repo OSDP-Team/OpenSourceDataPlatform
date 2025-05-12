@@ -1,0 +1,47 @@
+stacks:
+  mm-stack:
+    description: Custom stack with Superset, JupyterHub, Spark, MinIO and Keycloak
+    stackableRelease: "25.3"
+    stackableOperators:
+      - commons
+      - listener
+      - secret
+      - keycloak
+      - superset
+      - minio
+      - spark-k8s
+    labels:
+      - jupyterhub
+      - superset
+      - spark
+      - s3
+      - keycloak
+    manifests:
+      - plainYaml: ./manifests/minio.yaml
+      - helmChart: ./manifests/postgresql-superset.yaml
+      - plainYaml: ./manifests/s3-connection.yaml
+      - plainYaml: ./manifests/keycloak.yaml
+      - plainYaml: ./manifests/keycloak-realm-config.yaml
+      - plainYaml: ./manifests/keycloak-serviceaccount.yaml
+      - plainYaml: ./manifests/superset.yaml
+      - plainYaml: ./manifests/serviceaccount.yaml
+      - plainYaml: ./manifests/spark_connect.yaml
+      - helmChart: ./manifests/jupyterhub.yaml
+    supportedNamespaces: ["default"]
+    resourceRequests:
+      cpu: 8000m
+      memory: 16000Mi
+      pvc: 100Gi
+    parameters:
+      - name: supersetAdminPassword
+        description: Password of the Superset admin user
+        default: adminadmin
+      - name: keycloakAdminPassword
+        description: Password of the Keycloak admin user
+        default: adminadmin
+      - name: minioAdminPassword
+        description: Password of the MinIO admin user
+        default: adminadmin
+      - name: supersetSecretKey
+        description: Superset’s secret key used to generate e.g. session tokens
+        default: supersetSecretKey
