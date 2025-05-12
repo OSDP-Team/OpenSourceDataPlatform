@@ -17,7 +17,7 @@ stacks:
       - s3
       - keycloak
     manifests:
-      - plainYaml: ../manifests/minio.yaml
+      - helmChart: ../manifests/minio.yaml
       - helmChart: ../manifests/postgresql-superset.yaml
       - plainYaml: ../manifests/s3-connection.yaml
       - plainYaml: ../manifests/keycloak.yaml
