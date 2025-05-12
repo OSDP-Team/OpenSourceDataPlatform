@@ -17,16 +17,16 @@ stacks:
       - s3
       - keycloak
     manifests:
-      - plainYaml: ./manifests/minio.yaml
-      - helmChart: ./manifests/postgresql-superset.yaml
-      - plainYaml: ./manifests/s3-connection.yaml
-      - plainYaml: ./manifests/keycloak.yaml
-      - plainYaml: ./manifests/keycloak-realm-config.yaml
-      - plainYaml: ./manifests/keycloak-serviceaccount.yaml
-      - plainYaml: ./manifests/superset.yaml
-      - plainYaml: ./manifests/serviceaccount.yaml
-      - plainYaml: ./manifests/spark_connect.yaml
-      - helmChart: ./manifests/jupyterhub.yaml
+      - plainYaml: ../manifests/minio.yaml
+      - helmChart: ../manifests/postgresql-superset.yaml
+      - plainYaml: ../manifests/s3-connection.yaml
+      - plainYaml: ../manifests/keycloak.yaml
+      - plainYaml: ../manifests/keycloak-realm-config.yaml
+      - plainYaml: ../manifests/keycloak-serviceaccount.yaml
+      - plainYaml: ../manifests/superset.yaml
+      - plainYaml: ../manifests/serviceaccount.yaml
+      - plainYaml: ../manifests/spark_connect.yaml
+      - helmChart: ../manifests/jupyterhub.yaml
     supportedNamespaces: ["default"]
     resourceRequests:
       cpu: 8000m
