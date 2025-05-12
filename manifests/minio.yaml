@@ -17,7 +17,7 @@ options:
     size: 10Gi
   buckets:
     - name: demo
-      policy: public
+      policy: public # Für Demos erlaubt öffentlicher Zugriff, für Produktion später z. B. auf "none" ändern
   resources:
     requests:
       cpu: 1
