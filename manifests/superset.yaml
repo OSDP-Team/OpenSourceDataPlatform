@@ -1,20 +1,4 @@
 ---
-apiVersion: superset.stackable.tech/v1alpha1
-kind: SupersetCluster
-metadata:
-  name: superset
-spec:
-  image:
-    productVersion: 4.1.2
-  clusterConfig:
-    listenerClass: external-unstable
-    credentialsSecret: superset-credentials
-    mapboxSecret: superset-mapbox-api-key
-  nodes:
-    roleGroups:
-      default:
-        replicas: 1
----
 apiVersion: v1
 kind: Secret
 metadata:
@@ -28,22 +12,22 @@ stringData:
   adminUser.password: {{ supersetAdminPassword }}
   connections.secretKey: {{ supersetSecretKey }}
   connections.sqlalchemyDatabaseUri: postgresql://superset:superset@postgresql-superset/superset
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: superset-mapbox-api-key
-type: Opaque
-stringData:
-  connections.mapboxApiKey: "pk.eyJ1IjoibXVlbGxlcmNlbGluZSIsImEiOiJjbDZwM3llMTAwNGpmM2psdHU0Y21wZHJwIn0.kXFJKBbeyhbwf0z460JcTQ"
-# ---
-# TODO Use when available (https://github.com/stackabletech/superset-operator/issues/3)
-# apiVersion: superset.stackable.tech/v1alpha1
-# kind: TrinoConnection
-# metadata:
-#   name: superset-trino-connection
-# spec:
-#   superset:
-#     name: superset
-#   trino:
-#     name: trino
+
+  # OAuth für Keycloak
+  AUTH_TYPE: "AUTH_OAUTH"
+  OAUTH_PROVIDERS: |
+    [{
+      'name':'keycloak',
+      'icon':'fa-address-card',
+      'token_key':'access_token',
+      'remote_app': {
+        'client_id':'superset',
+        'client_secret':'{{ keycloakSupersetClientSecret }}',
+        'api_base_url':'https://keycloak:8443/realms/demo/protocol/openid-connect/',
+        'client_kwargs': {
+          'scope': 'openid profile email'
+        },
+        'access_token_url':'https://keycloak:8443/realms/demo/protocol/openid-connect/token',
+        'authorize_url':'https://keycloak:8443/realms/demo/protocol/openid-connect/auth'
+      }
+    }]
