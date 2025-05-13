@@ -50,6 +50,6 @@ stacks:
         default: supersetsuperset
       - name: jupyterhubClientPassword
         description: Password used by JupyterHub OAuth client
-        default: 12345678
+        default: "Kackmueller!123"
 
 
