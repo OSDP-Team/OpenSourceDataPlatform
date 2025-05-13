@@ -1,7 +1,7 @@
 stacks:
   mm-stack:
     description: Custom stack with Superset, JupyterHub, Spark, MinIO and Keycloak
-    stackableRelease: "25.3"
+    stackableRelease: 25.3
     stackableOperators:
       - commons
       - listener
