@@ -48,5 +48,9 @@ stacks:
       - name: keycloakSupersetClientSecret
         description: Client secret for Superset Keycloak integration
         default: supersetsuperset
-    context:
-      jupyterhubClientPassword: "12345678"
+        
+      secrets:
+        jupyterhubClientPassword:
+          k8sSecret: jupyterhub-client-secret
+          key: jupyterhubClientPassword
+
