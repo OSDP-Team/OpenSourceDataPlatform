@@ -49,3 +49,5 @@ stacks:
         description: Client secret for Superset Keycloak integration
         default: supersetsuperset
 
+    context:
+      jupyterhubClientPassword: "12345678"
