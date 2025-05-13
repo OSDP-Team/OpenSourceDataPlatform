@@ -111,12 +111,10 @@ options:
         c.GenericOAuthenticator.token_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/token"
         c.GenericOAuthenticator.userdata_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/userinfo"
     service:
-      type: NodePort
+      type: ClusterIP  # interne Kommunikation (nicht extern exponieren)
   proxy:
     service:
-      type: NodePort
-      nodePorts:
-        http: 31095
+      type: LoadBalancer  # ⚠️ HIER: jetzt mit EXTERNAL-IP
   rbac:
     create: true
   prePuller:
