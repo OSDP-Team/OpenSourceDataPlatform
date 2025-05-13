@@ -45,3 +45,7 @@ stacks:
       - name: supersetSecretKey
         description: Superset’s secret key used to generate e.g. session tokens
         default: supersetSecretKey
+      - name: keycloakSupersetClientSecret
+        description: Client secret for Superset Keycloak integration
+        default: supersetsuperset
+
