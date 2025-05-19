@@ -1,6 +1,8 @@
+---
+# Gekürzte Version von mm-stackable.yaml für niedrige Ressourcen
 stacks:
-  mm-stack:
-    description: Custom stack with Superset, JupyterHub, Spark, MinIO and Keycloak
+  mm-stackable:
+    description: Stackable-Plattform für kleine AKS-Cluster (1-3 Nodes)
     stackableRelease: 25.3
     stackableOperators:
       - commons
@@ -29,27 +31,25 @@ stacks:
       - helmChart: ../manifests/jupyterhub.yaml
     supportedNamespaces: ["default"]
     resourceRequests:
-      cpu: 8000m
-      memory: 16000Mi
-      pvc: 100Gi
+      cpu: 3000m
+      memory: 6000Mi
+      pvc: 30Gi
     parameters:
       - name: supersetAdminPassword
-        description: Password of the Superset admin user
+        description: Passwort für Superset-Admin
         default: adminadmin
       - name: keycloakAdminPassword
-        description: Password of the Keycloak admin user
+        description: Passwort für Keycloak-Admin
         default: adminadmin
       - name: minioAdminPassword
-        description: Password of the MinIO admin user
+        description: Passwort für MinIO-Admin
         default: adminadmin
       - name: supersetSecretKey
-        description: Superset’s secret key used to generate e.g. session tokens
+        description: SecretKey für Superset
         default: supersetSecretKey
       - name: keycloakSupersetClientSecret
-        description: Client secret for Superset Keycloak integration
+        description: Client-Secret für Superset-Keycloak
         default: supersetsuperset
       - name: jupyterhubClientPassword
-        description: Password used by JupyterHub OAuth client
+        description: Passwort für JupyterHub-Client
         default: "Kackmueller!123"
-
-
