@@ -42,8 +42,7 @@ spec:
         serviceAccountName: spark
     config:
       resources:
-        cpu:
-          limit: "1"
+        cpu: "1"
         memory:
           limit: "1.5Gi"
       logging:
@@ -60,8 +59,7 @@ spec:
         spark.executor.memoryOverhead: "256m"
     config:
       resources:
-        cpu:
-          limit: "1"
+        cpu: "1"
         memory:
           limit: "1.5Gi"
       logging:
