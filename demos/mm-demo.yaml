@@ -3,7 +3,7 @@ demos:
   mm-demo:
     description: Demo showing jupyterhub notebooks secured with keycloak
     documentation: https://docs.stackable.tech/home/stable/demos/jupyterhub-keycloak
-    stackableStack: mm-stackable
+    stackableStack: mm-stack
     labels:
       - jupyterhub
       - keycloak
