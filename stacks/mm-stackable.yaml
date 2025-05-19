@@ -28,7 +28,7 @@ stacks:
       - plainYaml: ../manifests/superset.yaml
       - plainYaml: ../manifests/serviceaccount.yaml
       - plainYaml: ../manifests/spark_connect.yaml
-      - helmChart: ../manifests/jupyterhub.yaml
+      #- helmChart: ../manifests/jupyterhub.yaml
     supportedNamespaces: ["default"]
     resourceRequests:
       cpu: 2000m
