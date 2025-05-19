@@ -1,7 +1,7 @@
 ---
 # Gekürzte Version von mm-stackable.yaml für niedrige Ressourcen
 stacks:
-  mm-stackable:
+  mm-stack:
     description: Stackable-Plattform für kleine AKS-Cluster (1-3 Nodes)
     stackableRelease: 25.3
     stackableOperators:
