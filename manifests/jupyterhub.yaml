@@ -1,3 +1,4 @@
+# yamllint disable-file
 ---
 releaseName: jupyterhub
 name: jupyterhub
@@ -14,23 +15,26 @@ options:
           - isla.williams
       GenericOAuthenticator:
         client_id: jupyterhub
-        client_secret: "jupyterhubjupyterhub"
+        client_secret: {{jupyterhubClientPassword}}
         username_claim: preferred_username
         scope:
           - openid
       JupyterHub:
         authenticator_class: generic-oauth
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 500m
-        memory: 768Mi
     extraEnv:
       CACERT: /etc/ssl/certs/ca-certificates.crt
       CERT: /etc/ssl/certs/ca-certificates.crt
       CURLOPT_CAINFO: /etc/ssl/certs/ca-certificates.crt
+      KEYCLOAK_NODEPORT_URL:
+        valueFrom:
+          configMapKeyRef:
+            name: keycloak-address
+            key: keycloakAddress
+      KEYCLOAK_NODE_IP:
+        valueFrom:
+          configMapKeyRef:
+            name: keycloak-address
+            key: keycloakNodeIp
     extraVolumes:
       - name: tls-ca-cert
         ephemeral:
@@ -51,12 +55,75 @@ options:
       - name: tls-ca-cert
         mountPath: /usr/local/lib/python3.12/site-packages/certifi/cacert.pem
         subPath: ca.crt
+    extraContainers:
+      - name: set-keycloak-address
+        image: bitnami/kubectl:latest
+        command:
+          - /bin/bash
+          - -c
+          - |
+            EXTERNAL_IP=$(kubectl get svc keycloak -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+            NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
+            kubectl create configmap keycloak-address \
+              --from-literal=keycloakAddress=$EXTERNAL_IP \
+              --from-literal=keycloakNodeIp=$NODE_IP \
+              -o yaml --dry-run=client | kubectl apply -f -
     extraConfig:
+      01-drop-security-context-hook: |
+        from kubespawner import KubeSpawner
+
+        async def modify_pod_hook(spawner: KubeSpawner, pod: dict):
+          pod.spec.security_context = None
+          for container in pod.spec.containers:
+            container.security_context = None
+          return pod
+
+        c.KubeSpawner.modify_pod_hook = modify_pod_hook
+      02-create-spark-driver-service-hook: |
+        from jupyterhub.utils import exponential_backoff
+        from kubespawner import KubeSpawner
+        from kubespawner.objects import make_owner_reference
+        from kubernetes_asyncio.client.models import V1ServicePort
+        from functools import partial
+
+        async def after_pod_created_hook(spawner: KubeSpawner, pod: dict):
+          owner_reference = make_owner_reference(
+            pod["metadata"]["name"], pod["metadata"]["uid"]
+          )
+          service_manifest = spawner.get_service_manifest(owner_reference)
+          service_manifest.spec.type = "ClusterIP"
+          service_manifest.spec.clusterIP = "None"
+          service_manifest.spec.ports += [
+            V1ServicePort(name='spark-ui', port=4040, target_port=4040),
+            V1ServicePort(name='spark-driver', port=2222, target_port=2222),
+            V1ServicePort(name='spark-block-manager', port=7777, target_port=7777)
+          ]
+          await exponential_backoff(
+              partial(spawner._ensure_not_exists, "service", service_manifest.metadata.name),
+              f"Failed to delete service {service_manifest.metadata.name}",
+          )
+          await exponential_backoff(
+              partial(spawner._make_create_resource_request, "service", service_manifest),
+              f"Failed to create service {service_manifest.metadata.name}",
+          )
+
+        c.KubeSpawner.after_pod_created_hook = after_pod_created_hook
       03-set-endpoints: |
-        c.GenericOAuthenticator.oauth_callback_url = "http://131.189.154.233/hub/oauth_callback"
-        c.GenericOAuthenticator.authorize_url = "https://131.189.154.233:8443/realms/demo/protocol/openid-connect/auth"
-        c.GenericOAuthenticator.token_url = "https://131.189.154.233:8443/realms/demo/protocol/openid-connect/token"
-        c.GenericOAuthenticator.userdata_url = "https://131.189.154.233:8443/realms/demo/protocol/openid-connect/userinfo"
+        import os
+        from oauthenticator.generic import GenericOAuthenticator
+
+        keycloak_url = os.getenv("KEYCLOAK_NODEPORT_URL")
+        keycloak_node_ip = os.getenv("KEYCLOAK_NODE_IP")
+
+        if not keycloak_url or not keycloak_node_ip:
+            raise ValueError("Keycloak IP environment variables not set")
+
+        c.GenericOAuthenticator.oauth_callback_url = f"http://{keycloak_node_ip}:31095/hub/oauth_callback"
+        c.GenericOAuthenticator.authorize_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/auth"
+        c.GenericOAuthenticator.token_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/token"
+        c.GenericOAuthenticator.userdata_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/userinfo"
+    service:
+      type: NodePort
   proxy:
     service:
       type: LoadBalancer
