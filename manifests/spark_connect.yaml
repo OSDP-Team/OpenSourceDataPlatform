@@ -18,6 +18,7 @@ data:
     rootLogger.level=INFO
     rootLogger.appenderRefs = CONSOLE
     rootLogger.appenderRef.CONSOLE.ref = CONSOLE
+
 ---
 apiVersion: spark.stackable.tech/v1alpha1
 kind: SparkConnectServer
@@ -35,8 +36,8 @@ spec:
   server:
     configOverrides:
       spark-defaults.conf:
-        spark.jars.ivy: /tmp/ivy2
         spark.driver.memory: "1g"
+        spark.jars.ivy: "/tmp/ivy2"
     podOverrides:
       spec:
         serviceAccountName: spark
