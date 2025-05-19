@@ -21,6 +21,8 @@ options:
           - openid
       JupyterHub:
         authenticator_class: generic-oauth
+        log_level: 10
+        cookie_secure: fals
     extraEnv:
       CACERT: /etc/ssl/certs/ca-certificates.crt
       CERT: /etc/ssl/certs/ca-certificates.crt
