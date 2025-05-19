@@ -57,8 +57,6 @@ options:
         c.GenericOAuthenticator.authorize_url = "https://135.220.40.252:8443/realms/demo/protocol/openid-connect/auth"
         c.GenericOAuthenticator.token_url = "https://135.220.40.252:8443/realms/demo/protocol/openid-connect/token"
         c.GenericOAuthenticator.userdata_url = "https://135.220.40.252:8443/realms/demo/protocol/openid-connect/userinfo"
-  service:
-    type: ClusterIP
   proxy:
     service:
       type: LoadBalancer
