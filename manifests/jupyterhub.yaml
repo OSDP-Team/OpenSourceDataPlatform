@@ -74,6 +74,9 @@ options:
         c.GenericOAuthenticator.userdata_url = f"https://131.189.186.216:8443/realms/demo/protocol/openid-connect/userinfo"
         c.GenericOAuthenticator.ssl_verify = False
         c.GenericOAuthenticator.validate_server_cert = False
+        import tornado
+        c.GenericOAuthenticator.http_client = tornado.httpclient.AsyncHTTPClient(force_instance=True)
+        c.GenericOAuthenticator.http_client.defaults = {"validate_cert": False}
     service:
       type: NodePort
   proxy:
