@@ -15,7 +15,7 @@ stacks:
     labels:
       - jupyterhub
       - superset
-      - spark
+      - spark-k8s
       - s3
       - keycloak
     manifests:
