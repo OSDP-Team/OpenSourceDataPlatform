@@ -55,19 +55,6 @@ options:
       - name: tls-ca-cert
         mountPath: /usr/local/lib/python3.12/site-packages/certifi/cacert.pem
         subPath: ca.crt
-    extraContainers:
-      - name: set-keycloak-address
-        image: bitnami/kubectl:latest
-        command:
-          - /bin/bash
-          - -c
-          - |
-            EXTERNAL_IP=$(kubectl get svc keycloak -n default -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-            NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
-            kubectl create configmap keycloak-address \
-              --from-literal=keycloakAddress=$EXTERNAL_IP \
-              --from-literal=keycloakNodeIp=$NODE_IP \
-              -o yaml --dry-run=client | kubectl apply -f -
     extraConfig:
       01-drop-security-context-hook: |
         from kubespawner import KubeSpawner
