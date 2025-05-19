@@ -28,16 +28,14 @@ metadata:
     stackable.tech/vendor: Stackable
 spec:
   image:
-    # Verwende bei Bedarf hier ein offizielles Release-Image
     custom: oci.stackable.tech/stackable/spark-connect-client:3.5.5-stackable25.3.0
     productVersion: 3.5.5
     pullPolicy: IfNotPresent
-  args:
   server:
     configOverrides:
       spark-defaults.conf:
         spark.jars.ivy: /tmp/ivy2
-        spark.driver.memory: "2g"
+        spark.driver.memory: "1g"
     podOverrides:
       spec:
         serviceAccountName: spark
@@ -56,7 +54,7 @@ spec:
     config:
       resources:
         memory:
-          limit: "2Gi"
+          limit: "1.5Gi"
       logging:
         enableVectorAgent: false
         containers:
@@ -66,13 +64,13 @@ spec:
   executor:
     configOverrides:
       spark-defaults.conf:
-        spark.executor.instances: "4"
-        spark.executor.memory: "3g"
-        spark.executor.memoryOverhead: "512m"
+        spark.executor.instances: "1"
+        spark.executor.memory: "1g"
+        spark.executor.memoryOverhead: "256m"
     config:
       resources:
         memory:
-          limit: "3.5Gi"
+          limit: "1.5Gi"
       logging:
         enableVectorAgent: false
         containers:
