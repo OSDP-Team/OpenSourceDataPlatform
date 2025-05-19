@@ -11,7 +11,7 @@ demos:
       - S3
       - superset
     manifests:
-      - plainYaml: ../jupyterhub-keycloak/load-gas-data.yaml
+      - plainYaml: ./jupyterhub-keycloak/load-gas-data.yaml
     supportedNamespaces: []
     resourceRequests:
       cpu: 4000m
