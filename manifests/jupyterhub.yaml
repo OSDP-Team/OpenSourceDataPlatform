@@ -122,14 +122,12 @@ options:
             choices:
               "0.5": { display_name: "0.5 CPU", kubespawner_override: { cpu_guarantee: 0.5, cpu_limit: 0.5 } }
               "1": { display_name: "1 CPU", kubespawner_override: { cpu_guarantee: 1, cpu_limit: 1 } }
-              "2": { display_name: "2 CPUs", kubespawner_override: { cpu_guarantee: 2, cpu_limit: 2 } }
           memory:
             display_name: Memory
             choices:
               "512 MB": { display_name: "512 MB", kubespawner_override: { mem_guarantee: "512M", mem_limit: "512M" } }
               "1 GB": { display_name: "1 GB", kubespawner_override: { mem_guarantee: "1G", mem_limit: "1G" } }
               "2 GB": { display_name: "2 GB", kubespawner_override: { mem_guarantee: "2G", mem_limit: "2G" } }
-              "4 GB": { display_name: "4 GB", kubespawner_override: { mem_guarantee: "4G", mem_limit: "4G" } }
           image:
             display_name: Image
             choices:
