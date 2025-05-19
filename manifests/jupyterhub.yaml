@@ -20,6 +20,13 @@ options:
           - openid
       JupyterHub:
         authenticator_class: generic-oauth
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 768Mi
     extraEnv:
       CACERT: /etc/ssl/certs/ca-certificates.crt
       CERT: /etc/ssl/certs/ca-certificates.crt
@@ -46,10 +53,10 @@ options:
         subPath: ca.crt
     extraConfig:
       03-set-endpoints: |
-        c.GenericOAuthenticator.oauth_callback_url = "http://131.189.161.52/hub/oauth_callback"
-        c.GenericOAuthenticator.authorize_url = "https://131.189.144.119:8443/realms/demo/protocol/openid-connect/auth"
-        c.GenericOAuthenticator.token_url = "https://131.189.144.119:8443/realms/demo/protocol/openid-connect/token"
-        c.GenericOAuthenticator.userdata_url = "https://131.189.144.119:8443/realms/demo/protocol/openid-connect/userinfo"
+        c.GenericOAuthenticator.oauth_callback_url = "http://135.220.40.252/hub/oauth_callback"
+        c.GenericOAuthenticator.authorize_url = "https://135.220.40.252:8443/realms/demo/protocol/openid-connect/auth"
+        c.GenericOAuthenticator.token_url = "https://135.220.40.252:8443/realms/demo/protocol/openid-connect/token"
+        c.GenericOAuthenticator.userdata_url = "https://135.220.40.252:8443/realms/demo/protocol/openid-connect/userinfo"
   service:
     type: ClusterIP
   proxy:
@@ -106,24 +113,23 @@ options:
         - name: notebook
           mountPath: /home/jovyan/notebook
     profileList:
-      - display_name: "Default"
-        description: "Default profile"
+      - display_name: "Lightweight (Dev)"
+        description: "Minimal profile for low-resource environments"
         default: true
         profile_options:
           cpu:
             display_name: CPU
             choices:
-              "1": { display_name: "1", kubespawner_override: { cpu_guarantee: 1, cpu_limit: 1 } }
-              "2": { display_name: "2", kubespawner_override: { cpu_guarantee: 2, cpu_limit: 2 } }
-              "4": { display_name: "4", kubespawner_override: { cpu_guarantee: 4, cpu_limit: 4 } }
-              "8": { display_name: "8", kubespawner_override: { cpu_guarantee: 8, cpu_limit: 8 } }
+              "0.5": { display_name: "0.5 CPU", kubespawner_override: { cpu_guarantee: 0.5, cpu_limit: 0.5 } }
+              "1": { display_name: "1 CPU", kubespawner_override: { cpu_guarantee: 1, cpu_limit: 1 } }
+              "2": { display_name: "2 CPUs", kubespawner_override: { cpu_guarantee: 2, cpu_limit: 2 } }
           memory:
             display_name: Memory
             choices:
+              "512 MB": { display_name: "512 MB", kubespawner_override: { mem_guarantee: "512M", mem_limit: "512M" } }
+              "1 GB": { display_name: "1 GB", kubespawner_override: { mem_guarantee: "1G", mem_limit: "1G" } }
               "2 GB": { display_name: "2 GB", kubespawner_override: { mem_guarantee: "2G", mem_limit: "2G" } }
               "4 GB": { display_name: "4 GB", kubespawner_override: { mem_guarantee: "4G", mem_limit: "4G" } }
-              "8 GB": { display_name: "8 GB", kubespawner_override: { mem_guarantee: "8G", mem_limit: "8G" } }
-              "16 GB": { display_name: "16 GB", kubespawner_override: { mem_guarantee: "16G", mem_limit: "16G" } }
           image:
             display_name: Image
             choices:
