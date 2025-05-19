@@ -18,7 +18,6 @@ data:
     rootLogger.level=INFO
     rootLogger.appenderRefs = CONSOLE
     rootLogger.appenderRef.CONSOLE.ref = CONSOLE
-
 ---
 apiVersion: spark.stackable.tech/v1alpha1
 kind: SparkConnectServer
@@ -26,6 +25,8 @@ metadata:
   name: spark-connect
   labels:
     stackable.tech/vendor: Stackable
+    stackable.tech/stack: mm-stack
+    stackable.tech/demo: mm-demo
 spec:
   image:
     custom: oci.stackable.tech/stackable/spark-connect-client:3.5.5-stackable25.3.0
@@ -39,18 +40,6 @@ spec:
     podOverrides:
       spec:
         serviceAccountName: spark
-        containers:
-          - name: spark
-            env:
-              - name: HADOOP_CONF_DIR
-                value: /hdfs-config
-            volumeMounts:
-              - name: hdfs-discovery-configmap
-                mountPath: /hdfs-config
-        volumes:
-          - name: hdfs-discovery-configmap
-            configMap:
-              name: hdfs
     config:
       resources:
         memory:
