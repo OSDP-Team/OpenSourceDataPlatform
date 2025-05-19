@@ -78,7 +78,6 @@ options:
   proxy:
     service:
       type: LoadBalancer
-      loadBalancerIP: 20.52.99.72
   rbac:
     create: true
   prePuller:
