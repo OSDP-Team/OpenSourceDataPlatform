@@ -78,6 +78,7 @@ options:
   proxy:
     service:
       type: LoadBalancer
+      loadBalancerIP: 135.220.20.87  # statische ip aus azure
   rbac:
     create: true
   prePuller:
