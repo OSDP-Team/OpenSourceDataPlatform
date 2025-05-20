@@ -5,12 +5,11 @@ name: jupyterhub
 repo:
   name: jupyterhub
   url: https://jupyterhub.github.io/helm-chart/
-version: 4.1.0 # 5.2.1
+version: 4.1.0
 options:
   hub:
     config:
       Authenticator:
-        # don't filter here: delegate to Keycloak
         allow_all: true
         admin_users:
           - isla.williams
@@ -26,16 +25,7 @@ options:
       CACERT: /etc/ssl/certs/ca-certificates.crt
       CERT: /etc/ssl/certs/ca-certificates.crt
       CURLOPT_CAINFO: /etc/ssl/certs/ca-certificates.crt
-      KEYCLOAK_NODEPORT_URL:
-        valueFrom:
-          configMapKeyRef:
-            name: keycloak-address
-            key: keycloakAddress
-      KEYCLOAK_NODE_IP:
-        valueFrom:
-          configMapKeyRef:
-            name: keycloak-address
-            key: keycloakNodeIp
+      OAUTHLIB_INSECURE_TRANSPORT: "1"
     extraVolumes:
       - name: tls-ca-cert
         ephemeral:
@@ -52,7 +42,6 @@ options:
                   storage: "1"
     extraVolumeMounts:
       - name: tls-ca-cert
-        # Alternative: mount to another filename in this folder and call update-ca-certificates
         mountPath: /etc/ssl/certs/ca-certificates.crt
         subPath: ca.crt
       - name: tls-ca-cert
@@ -61,67 +50,47 @@ options:
     extraConfig:
       01-drop-security-context-hook: |
         from kubespawner import KubeSpawner
-
         async def modify_pod_hook(spawner: KubeSpawner, pod: dict):
           pod.spec.security_context = None
           for container in pod.spec.containers:
             container.security_context = None
-
           return pod
-
         c.KubeSpawner.modify_pod_hook = modify_pod_hook
       02-create-spark-driver-service-hook: |
-        # Thanks to https://github.com/jupyterhub/kubespawner/pull/644
         from jupyterhub.utils import exponential_backoff
         from kubespawner import KubeSpawner
         from kubespawner.objects import make_owner_reference
         from kubernetes_asyncio.client.models import V1ServicePort
         from functools import partial
-
         async def after_pod_created_hook(spawner: KubeSpawner, pod: dict):
-          owner_reference = make_owner_reference(
-            pod["metadata"]["name"], pod["metadata"]["uid"]
-          )
+          owner_reference = make_owner_reference(pod["metadata"]["name"], pod["metadata"]["uid"])
           service_manifest = spawner.get_service_manifest(owner_reference)
-
           service_manifest.spec.type = "ClusterIP"
-          service_manifest.spec.clusterIP = "None" # Headless Services is all we need
+          service_manifest.spec.clusterIP = "None"
           service_manifest.spec.ports += [
-            V1ServicePort(name='spark-ui',            port=4040, target_port=4040),
-            V1ServicePort(name='spark-driver',        port=2222, target_port=2222),
+            V1ServicePort(name='spark-ui', port=4040, target_port=4040),
+            V1ServicePort(name='spark-driver', port=2222, target_port=2222),
             V1ServicePort(name='spark-block-manager', port=7777, target_port=7777)
           ]
-
           await exponential_backoff(
-              partial(
-                  spawner._ensure_not_exists,
-                  "service",
-                  service_manifest.metadata.name,
-              ),
+              partial(spawner._ensure_not_exists, "service", service_manifest.metadata.name),
               f"Failed to delete service {service_manifest.metadata.name}",
           )
           await exponential_backoff(
               partial(spawner._make_create_resource_request, "service", service_manifest),
               f"Failed to create service {service_manifest.metadata.name}",
           )
-
         c.KubeSpawner.after_pod_created_hook = after_pod_created_hook
       03-set-endpoints: |
-        import os
         from oauthenticator.generic import GenericOAuthenticator
-
-        keycloak_url = os.getenv("KEYCLOAK_NODEPORT_URL")
-        if not keycloak_url:
-            raise ValueError("KEYCLOAK_NODEPORT_URL environment variable not set")
-
-        keycloak_node_ip = os.getenv("KEYCLOAK_NODE_IP")
-        if not keycloak_node_ip:
-            raise ValueError("KEYCLOAK_NODE_IP environment variable not set")
-
-        c.GenericOAuthenticator.oauth_callback_url: f"http://{keycloak_node_ip}:31095/hub/oauth_callback"
-        c.GenericOAuthenticator.authorize_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/auth"
-        c.GenericOAuthenticator.token_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/token"
-        c.GenericOAuthenticator.userdata_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/userinfo"
+        keycloak_host = "keycloak.default.svc.cluster.local"
+        keycloak_port = "8443"
+        proxy_host = "proxy-public.default.svc.cluster.local"
+        proxy_port = "80"
+        c.GenericOAuthenticator.oauth_callback_url = f"http://{proxy_host}:{proxy_port}/hub/oauth_callback"
+        c.GenericOAuthenticator.authorize_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/auth"
+        c.GenericOAuthenticator.token_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/token"
+        c.GenericOAuthenticator.userdata_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/userinfo"
     service:
       type: NodePort
   proxy:
@@ -189,29 +158,42 @@ options:
           cpu:
             display_name: CPU
             choices:
-{% for cpu in ["1","2","4","8","16","32"] %}
-              "{{cpu}}":
-                display_name: "{{cpu}}"
+              "1":
+                display_name: "1"
                 kubespawner_override:
-                  cpu_guarantee: {{cpu}}
-                  cpu_limit: {{cpu}}
-{% endfor %}
+                  cpu_guarantee: 1
+                  cpu_limit: 1
+              "2":
+                display_name: "2"
+                kubespawner_override:
+                  cpu_guarantee: 2
+                  cpu_limit: 2
+              "4":
+                display_name: "4"
+                kubespawner_override:
+                  cpu_guarantee: 4
+                  cpu_limit: 4
           memory:
             display_name: Memory
             choices:
-{% for memory in ["1","2","4","8","16","32","64","128"] %}
-              "{{memory}} GB":
-                display_name: "{{memory}} GB"
+              "2 GB":
+                display_name: "2 GB"
                 kubespawner_override:
-                  mem_guarantee: "{{memory}}G"
-                  mem_limit: "{{memory}}G"
-{% endfor %}
+                  mem_guarantee: "2G"
+                  mem_limit: "2G"
+              "4 GB":
+                display_name: "4 GB"
+                kubespawner_override:
+                  mem_guarantee: "4G"
+                  mem_limit: "4G"
           image:
             display_name: Image
             choices:
-{% for image in ["quay.io/jupyter/pyspark-notebook:python-3.11.9", "quay.io/jupyter/pyspark-notebook:spark-3.5.5"] %}
-              "{{image}}":
-                display_name: "{{image}}"
+              "quay.io/jupyter/pyspark-notebook:python-3.11.9":
+                display_name: "Python 3.11.9"
                 kubespawner_override:
-                  image: "{{image}}"
-{% endfor %}
+                  image: "quay.io/jupyter/pyspark-notebook:python-3.11.9"
+              "quay.io/jupyter/pyspark-notebook:spark-3.5.5":
+                display_name: "Spark 3.5.5"
+                kubespawner_override:
+                  image: "quay.io/jupyter/pyspark-notebook:spark-3.5.5"
