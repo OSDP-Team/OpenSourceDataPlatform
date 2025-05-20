@@ -15,7 +15,6 @@ options:
           - isla.williams
       GenericOAuthenticator:
         client_id: jupyterhub
-        client_secret: {{jupyterhubClientPassword}}
         client_secret: "jupyterhubjupyterhub"
         username_claim: preferred_username
         scope:
