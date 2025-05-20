@@ -83,11 +83,8 @@ options:
         c.KubeSpawner.after_pod_created_hook = after_pod_created_hook
       03-set-endpoints: |
         from oauthenticator.generic import GenericOAuthenticator
-        keycloak_host = "keycloak.default.svc.cluster.local"
+        keycloak_host = "10.0.161.192"
         keycloak_port = "8443"
-        proxy_host = "proxy-public.default.svc.cluster.local"
-        proxy_port = "80"
-        c.GenericOAuthenticator.oauth_callback_url = f"http://{proxy_host}:{proxy_port}/hub/oauth_callback"
         c.GenericOAuthenticator.authorize_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/auth"
         c.GenericOAuthenticator.token_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/token"
         c.GenericOAuthenticator.userdata_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/userinfo"
