@@ -16,16 +16,28 @@ options:
       GenericOAuthenticator:
         client_id: jupyterhub
         client_secret: {{jupyterhubClientPassword}}
+        client_secret: "jupyterhubjupyterhub"
         username_claim: preferred_username
         scope:
           - openid
       JupyterHub:
         authenticator_class: generic-oauth
+        log_level: 10
+        cookie_secure: fals
     extraEnv:
       CACERT: /etc/ssl/certs/ca-certificates.crt
       CERT: /etc/ssl/certs/ca-certificates.crt
       CURLOPT_CAINFO: /etc/ssl/certs/ca-certificates.crt
-      OAUTHLIB_INSECURE_TRANSPORT: "1"
+      KEYCLOAK_NODEPORT_URL:
+        valueFrom:
+          configMapKeyRef:
+            name: keycloak-address
+            key: keycloakAddress
+      KEYCLOAK_NODE_IP:
+        valueFrom:
+          configMapKeyRef:
+            name: keycloak-address
+            key: keycloakNodeIp
     extraVolumes:
       - name: tls-ca-cert
         ephemeral:
@@ -35,8 +47,7 @@ options:
                 secrets.stackable.tech/class: tls
             spec:
               storageClassName: secrets.stackable.tech
-              accessModes:
-                - ReadWriteOnce
+              accessModes: [ReadWriteOnce]
               resources:
                 requests:
                   storage: "1"
@@ -48,53 +59,30 @@ options:
         mountPath: /usr/local/lib/python3.12/site-packages/certifi/cacert.pem
         subPath: ca.crt
     extraConfig:
-      01-drop-security-context-hook: |
-        from kubespawner import KubeSpawner
-        async def modify_pod_hook(spawner: KubeSpawner, pod: dict):
-          pod.spec.security_context = None
-          for container in pod.spec.containers:
-            container.security_context = None
-          return pod
-        c.KubeSpawner.modify_pod_hook = modify_pod_hook
-      02-create-spark-driver-service-hook: |
-        from jupyterhub.utils import exponential_backoff
-        from kubespawner import KubeSpawner
-        from kubespawner.objects import make_owner_reference
-        from kubernetes_asyncio.client.models import V1ServicePort
-        from functools import partial
-        async def after_pod_created_hook(spawner: KubeSpawner, pod: dict):
-          owner_reference = make_owner_reference(pod["metadata"]["name"], pod["metadata"]["uid"])
-          service_manifest = spawner.get_service_manifest(owner_reference)
-          service_manifest.spec.type = "ClusterIP"
-          service_manifest.spec.clusterIP = "None"
-          service_manifest.spec.ports += [
-            V1ServicePort(name='spark-ui', port=4040, target_port=4040),
-            V1ServicePort(name='spark-driver', port=2222, target_port=2222),
-            V1ServicePort(name='spark-block-manager', port=7777, target_port=7777)
-          ]
-          await exponential_backoff(
-              partial(spawner._ensure_not_exists, "service", service_manifest.metadata.name),
-              f"Failed to delete service {service_manifest.metadata.name}",
-          )
-          await exponential_backoff(
-              partial(spawner._make_create_resource_request, "service", service_manifest),
-              f"Failed to create service {service_manifest.metadata.name}",
-          )
-        c.KubeSpawner.after_pod_created_hook = after_pod_created_hook
-      03-set-endpoints: |
+      01-set-endpoints: |
+        import os
         from oauthenticator.generic import GenericOAuthenticator
-        keycloak_host = "10.0.161.192"
-        keycloak_port = "8443"
-        c.GenericOAuthenticator.authorize_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/auth"
-        c.GenericOAuthenticator.token_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/token"
-        c.GenericOAuthenticator.userdata_url = f"https://{keycloak_host}:{keycloak_port}/realms/demo/protocol/openid-connect/userinfo"
+
+        keycloak_url = os.getenv("KEYCLOAK_NODEPORT_URL")
+        keycloak_node_ip = os.getenv("KEYCLOAK_NODE_IP")
+
+        if not keycloak_url or not keycloak_node_ip:
+            raise ValueError("Keycloak IP environment variables not set")
+
+        #c.GenericOAuthenticator.oauth_callback_url = f"10.0.110.255/hub/oauth_callback"  # <- JupyterHub LoadBalancer (proxy-public)
+        c.GenericOAuthenticator.authorize_url = f"https://10.0.161.192:8443/realms/demo/protocol/openid-connect/auth"
+        c.GenericOAuthenticator.token_url = f"https://10.0.161.192:8443/realms/demo/protocol/openid-connect/token"
+        c.GenericOAuthenticator.userdata_url = f"https://10.0.161.192:8443/realms/demo/protocol/openid-connect/userinfo"
+        c.GenericOAuthenticator.ssl_verify = False
+        c.GenericOAuthenticator.validate_server_cert = False
+        import tornado
+        c.GenericOAuthenticator.http_client = tornado.httpclient.AsyncHTTPClient(force_instance=True)
+        c.GenericOAuthenticator.http_client.defaults = {"validate_cert": False}
     service:
       type: NodePort
   proxy:
     service:
-      type: NodePort
-      nodePorts:
-        http: 31095
+      type: LoadBalancer
   rbac:
     create: true
   prePuller:
@@ -106,7 +94,6 @@ options:
     userScheduler:
       enabled: false
   singleuser:
-    cmd: null
     serviceAccountName: spark
     networkPolicy:
       enabled: false
@@ -117,8 +104,8 @@ options:
         image: oci.stackable.tech/sdp/tools:1.0.0-stackable0.0.0-dev
         command: ['sh', '-c', 'curl https://raw.githubusercontent.com/stackabletech/demos/main/stacks/jupyterhub-keycloak/process-s3.ipynb -o /notebook/process-s3.ipynb']
         volumeMounts:
-          - mountPath: /notebook
-            name: notebook
+          - name: notebook
+            mountPath: /notebook
     storage:
       extraVolumes:
         - name: tls-ca-cert
@@ -129,8 +116,7 @@ options:
                   secrets.stackable.tech/class: tls
               spec:
                 storageClassName: secrets.stackable.tech
-                accessModes:
-                  - ReadWriteOnce
+                accessModes: [ReadWriteOnce]
                 resources:
                   requests:
                     storage: "1"
@@ -148,49 +134,27 @@ options:
         - name: notebook
           mountPath: /home/jovyan/notebook
     profileList:
-      - display_name: "Default"
-        description: "Default profile"
+      - display_name: "Lightweight (Dev)"
+        description: "Minimal profile for low-resource environments"
         default: true
         profile_options:
           cpu:
             display_name: CPU
             choices:
-              "1":
-                display_name: "1"
-                kubespawner_override:
-                  cpu_guarantee: 1
-                  cpu_limit: 1
-              "2":
-                display_name: "2"
-                kubespawner_override:
-                  cpu_guarantee: 2
-                  cpu_limit: 2
-              "4":
-                display_name: "4"
-                kubespawner_override:
-                  cpu_guarantee: 4
-                  cpu_limit: 4
+              "0.5": { display_name: "0.5 CPU", kubespawner_override: { cpu_guarantee: 0.5, cpu_limit: 0.5 } }
+              "1": { display_name: "1 CPU", kubespawner_override: { cpu_guarantee: 1, cpu_limit: 1 } }
           memory:
             display_name: Memory
             choices:
-              "2 GB":
-                display_name: "2 GB"
-                kubespawner_override:
-                  mem_guarantee: "2G"
-                  mem_limit: "2G"
-              "4 GB":
-                display_name: "4 GB"
-                kubespawner_override:
-                  mem_guarantee: "4G"
-                  mem_limit: "4G"
+              "512 MB": { display_name: "512 MB", kubespawner_override: { mem_guarantee: "512M", mem_limit: "512M" } }
+              "1 GB": { display_name: "1 GB", kubespawner_override: { mem_guarantee: "1G", mem_limit: "1G" } }
+              "2 GB": { display_name: "2 GB", kubespawner_override: { mem_guarantee: "2G", mem_limit: "2G" } }
           image:
             display_name: Image
             choices:
               "quay.io/jupyter/pyspark-notebook:python-3.11.9":
-                display_name: "Python 3.11.9"
-                kubespawner_override:
-                  image: "quay.io/jupyter/pyspark-notebook:python-3.11.9"
-              "quay.io/jupyter/pyspark-notebook:spark-3.5.5":
-                display_name: "Spark 3.5.5"
-                kubespawner_override:
-                  image: "quay.io/jupyter/pyspark-notebook:spark-3.5.5"
+                display_name: "Python 3.11.9 (Spark)"
+                kubespawner_override: { image: "quay.io/jupyter/pyspark-notebook:python-3.11.9" }
+              "quay.io/jupyter/pyspark-notebook:spark-3.5.2":
+                display_name: "Spark 3.5.2"
+                kubespawner_override: { image: "quay.io/jupyter/pyspark-notebook:spark-3.5.2" }
