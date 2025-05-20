@@ -69,9 +69,9 @@ options:
             raise ValueError("Keycloak IP environment variables not set")
 
         #c.GenericOAuthenticator.oauth_callback_url = f"http://131.189.137.93/hub/oauth_callback"  # <- JupyterHub LoadBalancer (proxy-public)
-        c.GenericOAuthenticator.authorize_url = f"https://131.189.186.216:8443/realms/demo/protocol/openid-connect/auth"
-        c.GenericOAuthenticator.token_url = f"https://131.189.186.216:8443/realms/demo/protocol/openid-connect/token"
-        c.GenericOAuthenticator.userdata_url = f"https://131.189.186.216:8443/realms/demo/protocol/openid-connect/userinfo"
+        c.GenericOAuthenticator.authorize_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/auth"
+        c.GenericOAuthenticator.token_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/token"
+        c.GenericOAuthenticator.userdata_url = f"https://{keycloak_url}/realms/demo/protocol/openid-connect/userinfo"
         c.GenericOAuthenticator.ssl_verify = False
         c.GenericOAuthenticator.validate_server_cert = False
         import tornado
