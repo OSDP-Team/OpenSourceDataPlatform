@@ -3,17 +3,29 @@ kind: SupersetCluster
 metadata:
   name: superset
 spec:
+  image:
+    productVersion: 4.1.2
   clusterConfig:
+    listenerClass: external-unstable
+    credentialsSecret: superset-credentials
+    mapboxSecret: superset-mapbox-api-key
     authentication:
       - authenticationClass: keycloak
         oidc:
           clientCredentialsSecret: superset-keycloak-client
-          extraScopes:
-            - groups
-    credentialsSecret: superset-credentials
-  image:
-    productVersion: "2.1"
+        userRegistrationRole: Gamma_extended
   nodes:
-    worker: # 'worker' ist der Rollenname
+    worker: # Hier kommt der Rollenname
       roleGroups:
-        default: {} # 'default' ist der Name der RoleGroup innerhalb der 'worker'-Rolle
+        default: # Hier kommt der Name der RoleGroup
+          replicas: 1
+  podOverrides:
+    spec:
+      initContainers:
+        - name: wait-for-setup-db-job
+          image: oci.stackable.tech/sdp/testing-tools:0.2.0-stackable0.0.0-dev
+          command:
+            - bash
+            - -c
+            - |
+              kubectl wait --for=condition=complete job/setup-db-job
