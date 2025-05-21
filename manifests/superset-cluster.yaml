@@ -17,6 +17,7 @@ apiVersion: superset.stackable.tech/v1alpha1
 kind: SupersetCluster
 metadata:
   name: superset
+  namespace: default
 spec:
   image:
     productVersion: 4.1.2
@@ -52,6 +53,8 @@ spec:
           ]
     podOverrides:
       spec:
+        imagePullSecrets:
+          - name: stackable-registry
         containers:
           - name: superset
             env:
