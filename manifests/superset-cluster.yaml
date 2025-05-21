@@ -3,58 +3,17 @@ kind: SupersetCluster
 metadata:
   name: superset
 spec:
-  image:
-    productVersion: 4.1.2
   clusterConfig:
-    listenerClass: external-unstable
-    credentialsSecret: superset-credentials
-    mapboxSecret: superset-mapbox-api-key
     authentication:
       - authenticationClass: keycloak
         oidc:
-          clientCredentialsSecret: superset-keycloak-client
-        userRegistrationRole: Gamma_extended
+          clientCredentialsSecret: superset-keycloak-client # Der Name des Secrets mit client_id und client_secret
+          extraScopes: # Optionale zusätzliche Scopes
+            - groups
+    credentialsSecret: superset-credentials # Secret für Admin-User und DB-Verbindung
+  image:
+    productVersion: "2.1" # Beispiel Superset Version
   nodes:
-    roleGroups:
-      default:
-        replicas: 1
-    podOverrides:
-      spec:
-        initContainers:
-          - name: wait-for-setup-db-job
-            image: oci.stackable.tech/sdp/testing-tools:0.2.0-stackable0.0.0-dev
-            command:
-              - bash
-              - -c
-              - |
-                kubectl wait --for=condition=complete job/setup-db-job
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: superset-credentials
-type: Opaque
-stringData:
-  adminUser.username: admin
-  adminUser.firstname: Superset
-  adminUser.lastname: Admin
-  adminUser.email: admin@superset.com
-  adminUser.password: dein_admin_passwort_hier
-  connections.secretKey: dein_secret_key_hier
-  connections.sqlalchemyDatabaseUri: postgresql://superset:superset@postgresql-superset/superset
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: superset-keycloak-client
-stringData:
-  clientId: superset
-  clientSecret: "6Y8saruv7rgrskNrzdI304snlj4mbTKz"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: superset-mapbox-api-key
-type: Opaque
-stringData:
-  connections.mapboxApiKey: "pk.eyJ1IjoibXVlbGxlcmNlbGluZSIsImEiOiJjbDZwM3llMTAwNGpmM2psdHU0Y21wZHJwIn0.kXFJKBbeyhbwf0z460JcTQ"
+    worker:
+      roleGroups:
+        default: {}
