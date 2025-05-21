@@ -15,10 +15,8 @@ spec:
           clientCredentialsSecret: superset-keycloak-client
         userRegistrationRole: Gamma_extended
   nodes:
-    worker: # Der Rollenname direkt unter 'nodes'
-      roleGroups:
-        default:
-          replicas: 1
+    default: # Hier war der Fehler, es sollte der Name der RoleGroup sein, aber 'nodes' ist direkt unter 'spec'
+      replicas: 1
   podOverrides:
     spec:
       initContainers:
