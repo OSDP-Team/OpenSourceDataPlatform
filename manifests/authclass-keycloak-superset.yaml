@@ -1,10 +1,36 @@
-# authclass-keycloak.yaml
+# authclass-keycloak-superset.yaml
 apiVersion: authentication.stackable.tech/v1alpha1
 kind: AuthenticationClass
 metadata:
   name: keycloak-demo
 spec:
-  oidc:
-    discoveryUrl: https://10.0.161.192:8443/realms/demo
-    clientCredentialsSecret: superset-oidc-client   # Secret aus Schritt 2
-    userNameClaim: preferred_username
+  # ─── 1) Gib hier an, dass OIDC der Provider ist ─────────────────────
+  provider:
+    oidc:
+      # Keycloak-Adresse aus Deinem Cluster
+      hostname: https://10.0.161.192
+      port: 8443
+      # Realm-Pfad
+      rootPath: /realms/demo
+      # Welches Claim als Username genutzt werden soll
+      principalClaim: preferred_username
+      # Optional: bekanntes Quirk für Keycloak
+      providerHint: Keycloak
+      # Welche Scopes angefragt werden
+      scopes:
+        - openid
+        - profile
+        - email
+      # Secret mit client_id + client_secret, das Du vorher angelegt hast
+      clientCredentialsSecret: superset-oidc-client
+      # TLS-Verifikation (hier: gar nicht prüfen)
+      tls:
+        none: {}
+  # ─── 2) Verifikation von Zertifikaten (muss immer da sein) ──────────
+  verification:
+    none: {}
+  # ─── 3) Scoping (optional, je nach Listener-Mounts in Deinen Pods) ────
+  listenerVolumes:
+    - services
+  services:
+    - superset
