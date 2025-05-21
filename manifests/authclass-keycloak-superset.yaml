@@ -1,0 +1,10 @@
+# authclass-keycloak.yaml
+apiVersion: stackable.tech/v1alpha1
+kind: AuthenticationClass
+metadata:
+  name: keycloak-demo
+spec:
+  oidc:
+    discoveryUrl: https://10.0.161.192:8443/realms/demo
+    clientCredentialsSecret: superset-oidc-client   # Secret aus Schritt 2
+    userNameClaim: preferred_username
