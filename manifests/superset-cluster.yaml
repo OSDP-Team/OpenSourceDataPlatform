@@ -15,7 +15,7 @@ spec:
           clientCredentialsSecret: superset-keycloak-client
         userRegistrationRole: Gamma_extended
   nodes:
-    worker: # Der Rollenname ist 'worker'
+    default: # Hier ist 'default' der Rollenname
       roleGroups:
         default:
           replicas: 1
