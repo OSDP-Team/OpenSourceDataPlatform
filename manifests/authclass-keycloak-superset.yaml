@@ -5,16 +5,14 @@ metadata:
 spec:
   provider:
     oidc:
-      hostname: https://10.0.161.192 # Der Hostname deines Keycloak-Servers (z.B. keycloak.example.com)
+      hostname: 10.0.161.192 # Der Hostname deines Keycloak-Servers (z.B. keycloak.example.com)
       port: 8443 # Der Port, auf dem Keycloak läuft
       rootPath: /realms/demo # Der Realm-Pfad in Keycloak
       scopes: # Die benötigten Scopes
         - openid
         - profile
         - email
-      clientCredentialsSecret: superset-keycloak-client # Der Name des Secrets, das die Client-Credentials enthält
       principalClaim: preferred_username # Das Feld im UserInfo-Endpoint, das als Benutzername verwendet wird
       tls:
         verification:
-          server:
-            insecure: true # Nur für Demos! In Produktion Zertifikate verwenden!
+          none: {} # Um die Server-Zertifikatsverifizierung zu deaktivieren (entspricht insecure: true)
