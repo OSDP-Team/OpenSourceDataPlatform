@@ -10,7 +10,7 @@ stringData:
   adminUser.lastname: Admin
   adminUser.email: admin@superset.com
   adminUser.password: will-not-be-used # as we use auth/oidc
-  connections.secretKey: {{ supersetSecretKey }}
+  connections.secretKey: superset
   connections.sqlalchemyDatabaseUri: postgresql://superset:superset@postgresql-superset/superset
 ---
 apiVersion: superset.stackable.tech/v1alpha1
