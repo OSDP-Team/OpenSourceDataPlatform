@@ -8,11 +8,35 @@ spec:
   clusterConfig:
     credentialsSecret: simple-superset-credentials
     listenerClass: external-unstable
-    authentication:
-      - authenticationClass: keycloak
   nodes:
     roleGroups:
       default:
         config:
           rowLimit: 10000
           webserverTimeout: 300
+          extraConfig:
+            AUTH_TYPE: AUTH_OAUTH
+            OAUTH_PROVIDERS: >
+              [
+                {
+                  "name": "keycloak",
+                  "icon": "fa-address-card",
+                  "token_key": "access_token",
+                  "remote_app": {
+                    "client_id": "superset",
+                    "client_secret": "deinGeheimerWert",
+                    "api_base_url": "https://10.0.161.192:8443/realms/master/protocol/openid-connect/",
+                    "access_token_url": "https://10.0.161.192:8443/realms/master/protocol/openid-connect/token",
+                    "authorize_url": "https://10.0.161.192:8443/realms/master/protocol/openid-connect/auth",
+                    "client_kwargs": {
+                      "scope": "openid email profile"
+                    }
+                  }
+                }
+              ]
+            OAUTH_USER_INFO: >
+              lambda resp: {
+                'username': resp['preferred_username'],
+                'email': resp['email'],
+                'name': resp['name']
+              }
