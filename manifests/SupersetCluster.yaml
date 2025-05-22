@@ -16,6 +16,8 @@ spec:
           extraScopes:
             - email
             - profile
+        userRegistration: true          #  ⬅︎  gleiche Ebene wie “oidc”
+        userRegistrationRole: Gamma_extended
   nodes:
     roleGroups:
       default:
