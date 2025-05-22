@@ -9,9 +9,9 @@ spec:
       port: 8443
       rootPath: /realms/master
       scopes:
-      - email
-      - openid
-      - profile
+        - email
+        - openid
+        - profile
       principalClaim: preferred_username
       providerHint: Keycloak
       tls:
@@ -19,3 +19,5 @@ spec:
           server:
             caCert:
               webPki: {}
+      credentials:
+        secretClass: superset-oidc-client
