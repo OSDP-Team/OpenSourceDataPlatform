@@ -11,11 +11,11 @@ spec:
     listenerClass: external-unstable
     authentication:
       - authenticationClass: keycloak
-    oidc:
-      clientCredentialsSecret: superset-oidc-secret
-      extraScopes:
-        - email
-        - profile
+        oidc:
+          clientCredentialsSecret: superset-oidc-secret
+          extraScopes:
+            - email
+            - profile
   nodes:
     roleGroups:
       default:
