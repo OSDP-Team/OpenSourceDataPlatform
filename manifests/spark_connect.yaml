@@ -67,3 +67,6 @@ spec:
           spark:
             custom:
               configMap: spark-connect-log-config
+  ports:
+    - name: spark-connect
+      port: 15002
