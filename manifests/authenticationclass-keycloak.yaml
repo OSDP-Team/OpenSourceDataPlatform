@@ -7,7 +7,7 @@ spec:
     oidc:
       hostname: 10.0.161.192
       port: 8443
-      rootPath: /realms/master
+      rootPath: /realms/demo/protocol/openid-connect/auth
       scopes:
         - email
         - openid
