@@ -30,19 +30,13 @@ spec:
           imagePullPolicy: Always
           securityContext:
             privileged: true
-          env:
-            - name: TS_AUTHKEY
-              valueFrom:
-                secretKeyRef:
-                  name: tailscale-auth
-                  key: TS_AUTHKEY
           command:
             - /bin/sh
             - -c
             - |
-                exec tailscaled \
-                  --state=/var/lib/tailscale/tailscaled.state \
-                  --tun=userspace-networking
+              exec tailscaled \
+                --state=/var/lib/tailscale/tailscaled.state \
+                --tun=userspace-networking
           volumeMounts:
             - name: ts-state
               mountPath: /var/lib/tailscale
@@ -60,17 +54,21 @@ spec:
                   key: TS_AUTHKEY
             - name: TS_ROUTES
               value: 10.0.0.0/16,10.244.0.0/16
+            - name: TS_TAGS
+              value: tag:subnet-router
           command:
             - /bin/sh
             - -c
             - |
-                sleep 5
-                tailscale up \
-                  --authkey=${TS_AUTHKEY} \
-                  --advertise-routes=${TS_ROUTES} \
-                  --accept-dns=false
-                echo "tailscale up done, keeping container alive ..."
-                sleep infinity
+              sleep 5
+              tailscale up \
+                --authkey=${TS_AUTHKEY} \
+                --advertise-routes=${TS_ROUTES} \
+                --advertise-tags=${TS_TAGS} \
+                --accept-dns=false \
+                || echo "tailscale already up or failed, continuing..."
+              echo "tailscale up done, keeping container alive ..."
+              sleep infinity
           volumeMounts:
             - name: ts-state
               mountPath: /var/lib/tailscale
