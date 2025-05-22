@@ -33,8 +33,6 @@ spec:
     custom: oci.stackable.tech/stackable/spark-connect-client:3.5.5-stackable25.3.0
     productVersion: 3.5.5
     pullPolicy: IfNotPresent
-  clusterConfig:
-    listenerClass: internal
   server:
     configOverrides:
       spark-defaults.conf:
