@@ -1,22 +1,19 @@
-apiVersion: authentication.stackable.tech/v1alpha1
-kind: AuthenticationClass
+apiVersion: superset.stackable.tech/v1alpha1
+kind: SupersetCluster
 metadata:
-  name: keycloak
+  name: simple-superset
+  namespace: default
 spec:
-  provider:
-    oidc:
-      hostname: 10.0.161.192
-      port: 8443
-      rootPath: /realms/master
-      scopes:
-        - email
-        - openid
-        - profile
-      principalClaim: preferred_username
-      providerHint: Keycloak
-      clientId: superset
-      tls:
-        verification:
-          server:
-            caCert:
-              webPki: {}
+  image:
+    productVersion: 4.1.1
+  clusterConfig:
+    credentialsSecret: simple-superset-credentials
+    listenerClass: external-unstable
+    authentication:
+      - authenticationClass: keycloak
+  nodes:
+    roleGroups:
+      default:
+        config:
+          rowLimit: 10000
+          webserverTimeout: 300
