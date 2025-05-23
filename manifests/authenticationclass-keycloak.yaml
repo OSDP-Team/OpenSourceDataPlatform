@@ -8,8 +8,14 @@ spec:
       hostname: 10.0.161.192
       port: 8443
       rootPath: /realms/demo
+      scopes:
+        - email
+        - openid
+        - profile
+      principalClaim: preferred_username
+      providerHint: Keycloak
       tls:
         verification:
-          server:
+           server:
             caCert:
-              secretClass: keycloak-ca       #  <-- DARAUF zeigt Superset
+              secretClass: keycloak-ca   # <- genau dieser Name
