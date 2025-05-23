@@ -16,4 +16,6 @@ spec:
       providerHint: Keycloak
       tls:
         verification:
-          none: {}
+           server:
+            caCert:
+              secretClass: keycloak-ca   # <- genau dieser Name
