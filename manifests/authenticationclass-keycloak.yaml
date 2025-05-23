@@ -17,4 +17,5 @@ spec:
       tls:
         verification:
           server:
-            skip: true
+            caCert:
+              webPki: {}
