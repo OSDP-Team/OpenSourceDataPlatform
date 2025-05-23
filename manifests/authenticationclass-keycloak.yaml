@@ -1,4 +1,3 @@
-# file: authentication-class-http.yaml
 apiVersion: authentication.stackable.tech/v1alpha1
 kind: AuthenticationClass
 metadata:
@@ -6,15 +5,11 @@ metadata:
 spec:
   provider:
     oidc:
-      hostname: 10.0.161.192     # unverändert
-      port: 80                   # <--  **neu**  (Service oder NodePort für 8080)
+      hostname: 10.0.161.192
+      port: 8443
       rootPath: /realms/demo
-      scopes:
-        - openid
-        - profile
-        - email
-      principalClaim: preferred_username
-      providerHint: Keycloak
-      tls:                       # bei HTTP wird TLS ignoriert – trotzdem Feld nötig
+      tls:
         verification:
-          none: {}               # <--  **neu**
+          server:
+            caCert:
+              secretClass: keycloak-ca       #  <-- DARAUF zeigt Superset
