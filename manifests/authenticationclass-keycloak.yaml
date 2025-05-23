@@ -16,6 +16,5 @@ spec:
       providerHint: Keycloak
       tls:
         verification:
-          # server:
-          #   caCert:
-          #     webPki: {}
+          server:
+            skip: true
