@@ -16,6 +16,6 @@ spec:
       providerHint: Keycloak
       tls:
         verification:
-          server:
-            caCert:
-              webPki: {}
+          # server:
+          #   caCert:
+          #     webPki: {}
