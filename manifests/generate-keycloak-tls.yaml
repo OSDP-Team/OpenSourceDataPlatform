@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-tls-init
+  namespace: default
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: keycloak-tls
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+
+              echo "[1] Generating self-signed certificate with SAN IP 10.0.161.192 ..."
+              mkdir -p /tmp/keycloak-tls
+              cd /tmp/keycloak-tls
+              openssl req -x509 -nodes -newkey rsa:2048 \
+                -keyout kc.key \
+                -out kc.crt \
+                -days 365 \
+                -subj "/CN=10.0.161.192" \
+                -addext "subjectAltName = IP:10.0.161.192"
+
+              echo "[✓] Certificate created:"
+              openssl x509 -in kc.crt -noout -subject -issuer -fingerprint -sha256
+
+              echo "[2a] Creating/replacing TLS secret 'keycloak-https' ..."
+              kubectl -n default delete secret keycloak-https --ignore-not-found
+              kubectl -n default create secret tls keycloak-https \
+                --cert=kc.crt \
+                --key=kc.key
+
+              echo "[2b] Creating/replacing CA secret 'keycloak-ca' ..."
+              kubectl -n default delete secret keycloak-ca --ignore-not-found
+              kubectl -n default create secret generic keycloak-ca \
+                --from-file=ca.crt=kc.crt
+              kubectl -n default label secret keycloak-ca \
+                secrets.stackable.tech/class=keycloak-ca --overwrite
+
+              echo "[✓] All secrets created and labeled successfully."
