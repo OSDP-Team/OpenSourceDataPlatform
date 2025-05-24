@@ -23,8 +23,8 @@ options:
       cpu: 1
       memory: 2Gi
   service:
-    type: NodePort
+    type: ClusterIP
     nodePort: null
   consoleService:
-    type: NodePort
+    type: ClusterIP
     nodePort: null
