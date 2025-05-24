@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: superset-ssl-off
-data:
-  superset_config.py: |
-    # wird in /stackable/config überschrieben
-    OIDC_VERIFY_SSL = False
