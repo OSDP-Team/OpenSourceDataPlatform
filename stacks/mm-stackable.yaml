@@ -1,8 +1,7 @@
 ---
-# Gekürzte Version von mm-stackable.yaml für niedrige Ressourcen
 stacks:
   mm-stack:
-    description: Stackable-Plattform für kleine AKS-Cluster (1-3 Nodes)
+    description: Stackable-Plattform für Software Projekt WIB 
     stackableRelease: 25.3
     stackableOperators:
       - commons
