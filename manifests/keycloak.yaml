@@ -118,7 +118,7 @@ metadata:
   labels:
     app: keycloak
 spec:
-  type: LoadBalancer  # 🔁 GEÄNDERT: Jetzt öffentlich erreichbar
+  type: ClusterIP
   selector:
     app: keycloak
   ports:
