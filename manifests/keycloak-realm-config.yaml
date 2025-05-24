@@ -6,7 +6,7 @@ metadata:
 stringData:
   realm.json: |
     {
-      "realm": "demo",
+      "realm": "mm-stackable",
       "enabled": true,
       "clients": [
         {
