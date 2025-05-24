@@ -7,12 +7,13 @@ metadata:
   labels:
     app: keycloak
 spec:
-  type: LoadBalancer
-  loadBalancerIP: 135.220.40.252  # << DEINE reservierte statische IP
+  type: NodePort
   ports:
     - port: 8443
       targetPort: 8443
       protocol: TCP
+      nodePort: 31093  # Fester Port für internen Zugriff
       name: https
   selector:
     app: keycloak
+
