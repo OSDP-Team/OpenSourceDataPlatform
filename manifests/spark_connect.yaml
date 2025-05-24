@@ -33,10 +33,11 @@ spec:
     custom: oci.stackable.tech/stackable/spark-connect-client:3.5.5-stackable25.3.0
     productVersion: 3.5.5
     pullPolicy: IfNotPresent
+
   server:
     configOverrides:
       spark-defaults.conf:
-        spark.driver.memory: "1g"
+        spark.driver.memory: "2g"
         spark.jars.ivy: "/tmp/ivy2"
     podOverrides:
       spec:
@@ -44,23 +45,29 @@ spec:
     config:
       resources:
         memory:
-          limit: "1.5Gi"
+          limit: "2.5Gi"
+        cpu:
+          limit: "1"
       logging:
         enableVectorAgent: false
         containers:
           spark:
             custom:
               configMap: spark-connect-log-config
+
   executor:
     configOverrides:
       spark-defaults.conf:
-        spark.executor.instances: "1"
-        spark.executor.memory: "1g"
-        spark.executor.memoryOverhead: "256m"
+        spark.executor.instances: "2"
+        spark.executor.cores: "1"
+        spark.executor.memory: "2g"
+        spark.executor.memoryOverhead: "512m"
     config:
       resources:
         memory:
-          limit: "1.5Gi"
+          limit: "3Gi"
+        cpu:
+          limit: "1"
       logging:
         enableVectorAgent: false
         containers:
