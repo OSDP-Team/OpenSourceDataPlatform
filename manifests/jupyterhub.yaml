@@ -78,10 +78,10 @@ options:
         c.GenericOAuthenticator.http_client = tornado.httpclient.AsyncHTTPClient(force_instance=True)
         c.GenericOAuthenticator.http_client.defaults = {"validate_cert": False}
     service:
-      type: NodePort
+      type: ClusterIP
   proxy:
     service:
-      type: LoadBalancer
+      type: ClusterIP
   rbac:
     create: true
   prePuller:
