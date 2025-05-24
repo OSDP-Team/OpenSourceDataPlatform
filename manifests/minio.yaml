@@ -24,7 +24,7 @@ options:
       memory: 2Gi
   service:
     type: ClusterIP
-    nodePort: null
+    # nodePort: null
   consoleService:
     type: ClusterIP
-    nodePort: null
+    # nodePort: null
