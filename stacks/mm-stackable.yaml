@@ -27,14 +27,13 @@ stacks:
       - plainYaml: ../manifests/spark_connect.yaml
       - helmChart: ../manifests/jupyterhub.yaml
       # - plainYaml: ../tailscale/tailscale-setup.yaml
-      # - plainYaml: ../manifests/keycloak-tls-job.yaml
-      # - plainYaml: ../manifests/keycloak-ca-secretclass.yaml
-      # - plainYaml: ../manifests/keycloak-ca-secretclass.yaml
-      # - plainYaml: ../manifests/authenticationclass-keycloak.yaml
-      # - helmChart: ../manifests/postgresql-superset.yaml
-      # - plainYaml: ../manifests/superset-credentials.yaml
-      # - plainYaml: ../manifests/superset-oidc-secret.yaml
-      # - plainYaml: ../manifests/superset-cluster.yaml
+      - plainYaml: ../manifests/keycloak-tls-job.yaml
+      - plainYaml: ../manifests/keycloak-ca-secretclass.yaml
+      - plainYaml: ../manifests/authenticationclass-keycloak.yaml
+      - helmChart: ../manifests/postgresql-superset.yaml
+      - plainYaml: ../manifests/superset-credentials.yaml
+      - plainYaml: ../manifests/superset-oidc-secret.yaml
+      - plainYaml: ../manifests/superset-cluster.yaml
     supportedNamespaces: []
     resourceRequests:
       cpu: 2000m
