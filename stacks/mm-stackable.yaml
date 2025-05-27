@@ -35,7 +35,8 @@ stacks:
       # - plainYaml: ../manifests/superset-credentials.yaml
       # - plainYaml: ../manifests/superset-oidc-secret.yaml
       # - plainYaml: ../manifests/superset-cluster.yaml
-    supportedNamespaces: "*"
+    supportedNamespaces: 
+      - "*"
     resourceRequests:
       cpu: 2000m
       memory: 4000Mi
