@@ -33,10 +33,6 @@ spec:
                 secretKeyRef:
                   name: keycloak-admin-credentials
                   key: admin
-            - name: KC_HTTPS_CERTIFICATE_FILE
-              value: /etc/x509/https/tls.crt
-            - name: KC_HTTPS_CERTIFICATE_KEY_FILE
-              value: /etc/x509/https/tls.key
           ports:
             - name: https
               containerPort: 8443
@@ -52,9 +48,6 @@ spec:
               mountPath: /opt/keycloak/data/import
             - name: tls
               mountPath: /tls/
-            - name: https
-              mountPath: /etc/x509/https
-              readOnly: true
         - name: create-configmap
           resources: {}
           image: oci.stackable.tech/sdp/testing-tools:0.2.0-stackable0.0.0-dev
@@ -116,9 +109,6 @@ spec:
                 resources:
                   requests:
                     storage: "1"
-        - name: https
-          secret:
-            secretName: keycloak-https
       serviceAccountName: keycloak-serviceaccount
 ---
 apiVersion: v1
