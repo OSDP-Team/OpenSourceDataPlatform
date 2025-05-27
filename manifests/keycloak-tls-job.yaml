@@ -10,7 +10,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: keycloak-tls
-          image: bitnami/kubectl:latest
+          image: bitnami/kubectl:1.27.3-debian-11-r0
           command:
             - /bin/bash
             - -c
