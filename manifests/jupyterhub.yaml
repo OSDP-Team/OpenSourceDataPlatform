@@ -68,10 +68,10 @@ options:
         if not keycloak_url or not keycloak_node_ip:
             raise ValueError("Keycloak IP environment variables not set")
 
-        #c.GenericOAuthenticator.oauth_callback_url = f"10.0.156.237/hub/oauth_callback"  # <- JupyterHub LoadBalancer (proxy-public)
-        c.GenericOAuthenticator.authorize_url = f"https://10.0.156.237:8443/realms/mm-stackable/protocol/openid-connect/auth"
-        c.GenericOAuthenticator.token_url = f"https://10.0.156.237:8443/realms/mm-stackable/protocol/openid-connect/token"
-        c.GenericOAuthenticator.userdata_url = f"https://10.0.156.237:8443/realms/mm-stackable/protocol/openid-connect/userinfo"
+        #c.GenericOAuthenticator.oauth_callback_url = f"10.0.191.87/hub/oauth_callback"  # <- JupyterHub LoadBalancer (proxy-public)
+        c.GenericOAuthenticator.authorize_url = f"https://10.0.191.87:8443/realms/mm-stackable/protocol/openid-connect/auth"
+        c.GenericOAuthenticator.token_url = f"https://10.0.191.87:8443/realms/mm-stackable/protocol/openid-connect/token"
+        c.GenericOAuthenticator.userdata_url = f"https://10.0.191.87:8443/realms/mm-stackable/protocol/openid-connect/userinfo"
         c.GenericOAuthenticator.ssl_verify = False
         c.GenericOAuthenticator.validate_server_cert = False
         import tornado
