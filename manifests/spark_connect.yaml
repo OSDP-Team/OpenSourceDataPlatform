@@ -46,8 +46,6 @@ spec:
       resources:
         memory:
           limit: "2.5Gi"
-        cpu:
-          limit: "1"
       logging:
         enableVectorAgent: false
         containers:
@@ -66,8 +64,6 @@ spec:
       resources:
         memory:
           limit: "3Gi"
-        cpu:
-          limit: "1"
       logging:
         enableVectorAgent: false
         containers:
