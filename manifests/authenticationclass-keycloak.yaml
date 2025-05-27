@@ -5,7 +5,7 @@ metadata:
 spec:
   provider:
     oidc:
-      hostname: 10.0.161.192
+      hostname: 10.0.156.237
       port: 8443
       rootPath: /realms/mm-stackable
       scopes:
