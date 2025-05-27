@@ -1,10 +1,4 @@
 ---
-# namespace erstellen
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: tailscale
----
 # tailscale-serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
