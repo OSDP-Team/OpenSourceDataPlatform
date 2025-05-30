@@ -27,3 +27,4 @@ spec:
         envOverrides:
           REQUESTS_CA_BUNDLE: /stackable/secrets/keycloak-ca/ca.crt
           SSL_CERT_FILE: /stackable/secrets/keycloak-ca/ca.crt
+          OIDC_ROLE_MAPPING: '{"*": "Admin"}'   # <--- Das hier ist neu!
