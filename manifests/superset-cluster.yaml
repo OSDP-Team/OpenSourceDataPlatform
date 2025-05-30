@@ -27,13 +27,6 @@ spec:
         podOverrides:
           env:
             - name: REQUESTS_CA_BUNDLE
-              value: /etc/keycloak-ca/ca.crt
-          volumeMounts:
-            - name: keycloak-ca
-              mountPath: /etc/ssl/certs/ca-certificates.crt
-              subPath: ca-certificates.crt
-              readOnly: true
-          volumes:
-            - name: keycloak-ca
-              secret:
-                secretName: keycloak-ca
+              value: /stackable/secrets/keycloak-ca/ca.crt
+            - name: SSL_CERT_FILE
+              value: /stackable/secrets/keycloak-ca/ca.crt
