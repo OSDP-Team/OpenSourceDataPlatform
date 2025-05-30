@@ -18,17 +18,21 @@ spec:
             - profile
         userRegistration: true
         userRegistrationRole: Public
-    extraVolumes:
-      - name: keycloak-ca
-        secret:
-          secretName: keycloak-ca
-    extraVolumeMounts:
-      - name: keycloak-ca
-        mountPath: /etc/ssl/certs/
-        readOnly: true
   nodes:
     roleGroups:
       default:
         config:
           rowLimit: 10000
           webserverTimeout: 300
+        podOverrides:
+          env:
+            - name: REQUESTS_CA_BUNDLE
+              value: /etc/ssl/certs/ca.crt
+          volumeMounts:
+            - name: keycloak-ca
+              mountPath: /etc/ssl/certs/
+              readOnly: true
+          volumes:
+            - name: keycloak-ca
+              secret:
+                secretName: keycloak-ca
