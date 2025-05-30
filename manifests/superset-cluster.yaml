@@ -16,7 +16,7 @@ spec:
           extraScopes:
             - email
             - profile
-        userRegistration: true          #  ⬅︎  gleiche Ebene wie “oidc”
+        userRegistration: true
         userRegistrationRole: Public
   nodes:
     roleGroups:
@@ -24,3 +24,6 @@ spec:
         config:
           rowLimit: 10000
           webserverTimeout: 300
+        env:
+          - name: REQUESTS_CA_BUNDLE
+            value: /stackable/secrets/keycloak-ca/ca.crt
