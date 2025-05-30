@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+data:
+  Corefile: |
+    .:53 {
+        hosts {
+            10.0.176.231 superset.ts
+            10.0.194.12  jupyterhub.ts
+            10.0.110.154 minio.ts
+            10.0.234.7   keycloak.ts
+            fallthrough
+        }
+        forward . 1.1.1.1 8.8.8.8
+        log
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+  labels:
+    app: coredns-custom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coredns-custom
+  template:
+    metadata:
+      labels:
+        app: coredns-custom
+    spec:
+      containers:
+      - name: coredns
+        image: coredns/coredns:1.11.1
+        args: [ "-conf", "/etc/coredns/Corefile" ]
+        ports:
+        - containerPort: 53
+          protocol: UDP
+        - containerPort: 53
+          protocol: TCP
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/coredns
+      volumes:
+      - name: config-volume
+        configMap:
+          name: coredns-custom
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coredns-custom
+  namespace: kube-system
+spec:
+  type: LoadBalancer
+  ports:
+    - name: dns-udp
+      port: 53
+      protocol: UDP
+      targetPort: 53
+    - name: dns-tcp
+      port: 53
+      protocol: TCP
+      targetPort: 53
+  selector:
+    app: coredns-custom
