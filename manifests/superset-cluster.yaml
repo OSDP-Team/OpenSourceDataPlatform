@@ -24,8 +24,9 @@ spec:
         config:
           rowLimit: 10000
           webserverTimeout: 300
-        envOverrides:
-          - name: REQUESTS_CA_BUNDLE
-            value: /stackable/secrets/keycloak-ca/ca.crt
-          - name: SSL_CERT_FILE
-            value: /stackable/secrets/keycloak-ca/ca.crt
+        podOverrides:
+          env:
+            - name: REQUESTS_CA_BUNDLE
+              value: /stackable/secrets/keycloak-ca/ca.crt
+            - name: SSL_CERT_FILE
+              value: /stackable/secrets/keycloak-ca/ca.crt
