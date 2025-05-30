@@ -17,7 +17,7 @@ spec:
             - |
               set -euo pipefail
 
-              echo "[1] Generating self-signed certificate with SAN IP 10.0.161.192 ..."
+              echo "[1] Generating self-signed certificate with SAN IP 10.0.234.7 ..."
               mkdir -p /tmp/keycloak-tls
               cd /tmp/keycloak-tls
               openssl req -x509 -nodes -newkey rsa:2048 \
@@ -39,7 +39,7 @@ spec:
               echo "[2b] Creating/replacing CA secret 'keycloak-ca' ..."
               kubectl -n default delete secret keycloak-ca --ignore-not-found
               kubectl -n default create secret generic keycloak-ca \
-                --from-file=ca.crt=kc.crt
+                --from-file=ca-certificates.crt=kc.crt
               kubectl -n default label secret keycloak-ca \
                 secrets.stackable.tech/class=keycloak-ca --overwrite
 
