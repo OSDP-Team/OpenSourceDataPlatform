@@ -24,10 +24,6 @@ spec:
         config:
           rowLimit: 10000
           webserverTimeout: 300
-        volumes:                               # ✅ richtig hier
-          - name: keycloak-ca
-            secret:
-              secretName: keycloak-ca
         podOverrides:
           env:
             - name: REQUESTS_CA_BUNDLE
@@ -36,3 +32,7 @@ spec:
             - name: keycloak-ca
               mountPath: /etc/keycloak-ca
               readOnly: true
+          volumes:
+            - name: keycloak-ca
+              secret:
+                secretName: keycloak-ca
