@@ -30,7 +30,8 @@ spec:
               value: /etc/keycloak-ca/ca.crt
           volumeMounts:
             - name: keycloak-ca
-              mountPath: /etc/keycloak-ca
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
               readOnly: true
           volumes:
             - name: keycloak-ca
