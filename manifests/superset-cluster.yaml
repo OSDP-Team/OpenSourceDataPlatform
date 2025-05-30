@@ -17,7 +17,7 @@ spec:
             - email
             - profile
         userRegistration: true
-        userRegistrationRole: Public
+        userRegistrationRole: Admin #beim ersten einrichten auf admin, danach auf public
   nodes:
     roleGroups:
       default:
