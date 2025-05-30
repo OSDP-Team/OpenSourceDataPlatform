@@ -9,7 +9,7 @@ data:
         hosts {
             10.0.176.231 superset.ts
             10.0.194.12  jupyterhub.ts
-            10.0.110.154 minio.ts
+            10.0.193.18 minio.ts
             10.0.234.7   keycloak.ts
             fallthrough
         }
