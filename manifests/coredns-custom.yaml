@@ -57,7 +57,7 @@ metadata:
   name: coredns-custom
   namespace: kube-system
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: dns-udp
       port: 53
