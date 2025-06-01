@@ -1,0 +1,34 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: spark-k8s-operator
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "persistentvolumeclaims"]
+    verbs: ["*"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["*"]
+  - apiGroups: ["spark.stackable.tech"]
+    resources: ["sparkconnectservers", "sparkconnectservers/status", "sparkapplications"]
+    verbs: ["*"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles", "rolebindings"]
+    verbs: ["*"]
+  - apiGroups: ["events.k8s.io"]
+    resources: ["events"]
+    verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: spark-k8s-operator
+subjects:
+  - kind: ServiceAccount
+    name: spark-k8s-operator-serviceaccount    # ← Das ist dein Operator-SA
+    namespace: stackable-operators
+roleRef:
+  kind: ClusterRole
+  name: spark-k8s-operator
+  apiGroup: rbac.authorization.k8s.io
