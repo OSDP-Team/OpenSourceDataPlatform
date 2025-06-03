@@ -57,16 +57,13 @@ spec:
     configOverrides:
       spark-defaults.conf:
         spark.executor.instances: "1"
-        spark.executor.cores: "0.5"
-        spark.executor.memory: "800m"
-        spark.executor.memoryOverhead: "200m"
+        spark.executor.cores: "0.25"
+        spark.executor.memory: "400m"
+        spark.executor.memoryOverhead: "100m"
     config:
       resources:
         memory:
-          limit: "1Gi"
-      logging:
-        enableVectorAgent: false
-        containers:
-          spark:
-            custom:
-              configMap: spark-connect-log-config
+          limit: "512Mi"
+        cpu:
+          limit: "0.25"
+          request: "0.25"
