@@ -39,7 +39,7 @@ spec:
     dagsGitSync:
       - repo: https://github.com/NESuchi/Open-Source-Data-Platform
         branch: "master"
-        gitFolder: "Open-Source-Data-Platform/airflowDags"
+        gitFolder: "airflowDags"
         depth: 10
         wait: 20s
         credentialsSecret: git-credentials
