@@ -64,6 +64,9 @@ spec:
       resources:
         memory:
           limit: "512Mi"
-        cpu:
-          limit: "0.25"
-          request: "0.25"
+      logging:
+        enableVectorAgent: false
+        containers:
+          spark:
+            custom:
+              configMap: spark-connect-log-config
