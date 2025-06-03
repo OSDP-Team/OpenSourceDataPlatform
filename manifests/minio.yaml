@@ -11,7 +11,7 @@ options:
   podLabels:
     stackable.tech/vendor: Stackable
   rootUser: admin
-  rootPassword: {{ minioAdminPassword }}
+  rootPassword: adminadmin
   mode: standalone
   persistence:
     size: 10Gi
