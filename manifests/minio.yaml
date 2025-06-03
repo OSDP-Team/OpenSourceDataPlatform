@@ -11,7 +11,7 @@ options:
   podLabels:
     stackable.tech/vendor: Stackable
   rootUser: admin
-  rootPassword: {{ minioAdminPassword }}
+  rootPassword: adminadmin
   mode: standalone
   persistence:
     size: 10Gi
@@ -23,8 +23,8 @@ options:
       cpu: 1
       memory: 2Gi
   service:
-    type: ClusterIP
-    # nodePort: null
+    type: NodePort
+    nodePort: 30090      # <- S3 API erreichbar unter <node-ip>:30090
   consoleService:
-    type: ClusterIP
-    # nodePort: null
+    type: NodePort
+    nodePort: 30091      # <- Web-Konsole erreichbar unter <node-ip>:30091
