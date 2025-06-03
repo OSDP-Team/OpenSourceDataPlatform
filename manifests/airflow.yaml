@@ -51,7 +51,7 @@ spec:
       default:
         replicas: 1
         envOverrides:
-          AIRFLOW_CORE_DAGS_FOLDER: "/opt/airflow/dags"
+          AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
 
   celeryExecutors:
     roleGroups:
