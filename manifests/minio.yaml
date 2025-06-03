@@ -24,7 +24,10 @@ options:
       memory: 2Gi
   service:
     type: ClusterIP
-    # nodePort: null
+    port: 9000
   consoleService:
     type: ClusterIP
-    # nodePort: null
+    port: 9001
+  env:
+    - name: MINIO_CONSOLE_ADDRESS
+      value: ":9001"
