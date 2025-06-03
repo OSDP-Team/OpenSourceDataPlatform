@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: git-credentials
+type: Opaque
+stringData:
+  user: "LeartIGashi"
+  password: "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"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: simple-airflow-credentials
+type: Opaque
+stringData:
+  adminUser.username: airflow
+  adminUser.firstname: Airflow
+  adminUser.lastname: Admin
+  adminUser.email: teeeest@test.com
+  adminUser.password: airflow
+  connections.secretKey: thisISaSECRET_1234
+  connections.sqlalchemyDatabaseUri: postgresql+psycopg2://airflow:airflow@airflow-postgresql.default.svc.cluster.local/airflow
+  connections.celeryResultBackend: db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local/airflow
+  connections.celeryBrokerUrl: redis://:redis@airflow-redis-master:6379/0
+---
+apiVersion: airflow.stackable.tech/v1alpha1
+kind: AirflowCluster
+metadata:
+  name: airflow
+spec:
+  image:
+    productVersion: 2.10.4
+
+  clusterConfig:
+    loadExamples: false
+    exposeConfig: true
+    credentialsSecret: simple-airflow-credentials
+
+    dagsGitSync:
+      - repo: https://github.com/NESuchi/Open-Source-Data-Platform
+        branch: "master"
+        gitFolder: "airflowDags"
+        depth: 10
+        wait: 20s
+        credentialsSecret: git-credentials
+        gitSyncConf:
+          --rev: HEAD
+
+  webservers:
+    roleGroups:
+      default:
+        replicas: 1
+        envOverrides:
+          AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
+          AIRFLOW__WEBSERVER__BASE_URL: "http://10.0.160.223:8080"
+
+  celeryExecutors:
+    roleGroups:
+      default:
+        replicas: 2
+        envOverrides:
+          AIRFLOW_CORE_DAGS_FOLDER: "/opt/airflow/dags"
+          AIRFLOW_CELERY_BROKER_URL: "redis://:redis@airflow-redis-master.default.svc.cluster.local:6379/0"
+          AIRFLOW_CELERY_RESULT_BACKEND: "db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local:5432/airflow"
+
+  schedulers:
+    roleGroups:
+      default:
+        replicas: 1
+        envOverrides:
+          AIRFLOW_CORE_DAGS_FOLDER: "/opt/airflow/dags"
+        podOverrides:
+          spec:
+            containers:
+              - name: airflow
