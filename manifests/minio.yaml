@@ -4,7 +4,7 @@ name: minio
 repo:
   name: minio
   url: https://charts.min.io/
-version: 5.4.0 # RELEASE.2024-12-18T13-15-44Z
+version: 5.4.0
 options:
   additionalLabels:
     stackable.tech/vendor: Stackable
@@ -17,7 +17,7 @@ options:
     size: 10Gi
   buckets:
     - name: demo
-      policy: none # Für Demos erlaubt öffentlicher Zugriff, für Produktion später z. B. auf "none" ändern
+      policy: none
   resources:
     requests:
       cpu: 1
@@ -28,6 +28,6 @@ options:
   consoleService:
     type: ClusterIP
     port: 9001
-  env:
-    - name: MINIO_CONSOLE_ADDRESS
-      value: ":9001"
+  consoleArgs:
+    - --console-address
+    - ":9001"
