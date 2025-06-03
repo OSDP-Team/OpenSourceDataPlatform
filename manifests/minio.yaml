@@ -23,8 +23,8 @@ options:
       cpu: 1
       memory: 2Gi
   service:
-    type: NodePort
-    nodePort: 30090      # <- S3 API erreichbar unter <node-ip>:30090
+    type: ClusterIP
+    # nodePort: null
   consoleService:
-    type: NodePort
-    nodePort: 30091      # <- Web-Konsole erreichbar unter <node-ip>:30091
+    type: ClusterIP
+    # nodePort: null
