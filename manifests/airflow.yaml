@@ -16,7 +16,7 @@ stringData:
   adminUser.username: airflow
   adminUser.firstname: Airflow
   adminUser.lastname: Admin
-  adminUser.email: teeest@test.com
+  adminUser.email: teeeest@test.com
   adminUser.password: airflow
   connections.secretKey: thisISaSECRET_1234
   connections.sqlalchemyDatabaseUri: postgresql+psycopg2://airflow:airflow@airflow-postgresql.default.svc.cluster.local/airflow
@@ -52,6 +52,7 @@ spec:
         replicas: 1
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
+          AIRFLOW__WEBSERVER__BASE_URL: "http://10.0.160.223:8080"
 
   celeryExecutors:
     roleGroups:
