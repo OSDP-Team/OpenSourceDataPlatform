@@ -18,7 +18,7 @@ stacks:
       - s3
       - keycloak
     manifests:
-      - helmChart: ../manifests/minio.yaml
+      #- helmChart: ../manifests/minio.yaml
       - helmChart: ../manifests/jupyterhub-native-auth.yaml
       # - plainYaml: ../manifests/s3-connection.yaml
       # - plainYaml: ../manifests/keycloak.yaml
