@@ -37,7 +37,7 @@ spec:
   server:
     configOverrides:
       spark-defaults.conf:
-        spark.driver.memory: "2g"
+        spark.driver.memory: "1g"
         spark.jars.ivy: "/tmp/ivy2"
     podOverrides:
       spec:
@@ -45,7 +45,7 @@ spec:
     config:
       resources:
         memory:
-          limit: "2.5Gi"
+          limit: "1.2Gi"
       logging:
         enableVectorAgent: false
         containers:
@@ -56,14 +56,14 @@ spec:
   executor:
     configOverrides:
       spark-defaults.conf:
-        spark.executor.instances: "2"
-        spark.executor.cores: "1"
-        spark.executor.memory: "2g"
-        spark.executor.memoryOverhead: "512m"
+        spark.executor.instances: "1"
+        spark.executor.cores: "0.5"
+        spark.executor.memory: "800m"
+        spark.executor.memoryOverhead: "200m"
     config:
       resources:
         memory:
-          limit: "3Gi"
+          limit: "1Gi"
       logging:
         enableVectorAgent: false
         containers:
