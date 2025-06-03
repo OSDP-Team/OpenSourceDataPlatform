@@ -50,6 +50,13 @@ spec:
     roleGroups:
       default:
         replicas: 1
+        resources:
+          cpu:
+            min: "100m"
+            max: "500m"
+          memory:
+            min: "256Mi"
+            limit: "1Gi"
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
           AIRFLOW__WEBSERVER__BASE_URL: "http://10.0.160.223:8080"
@@ -58,6 +65,13 @@ spec:
     roleGroups:
       default:
         replicas: 2
+        resources:
+          cpu:
+            min: "300m"
+            max: "1"
+          memory:
+            min: "512Mi"
+            limit: "2Gi"
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/opt/airflow/dags"
           AIRFLOW_CELERY_BROKER_URL: "redis://:redis@airflow-redis-master.default.svc.cluster.local:6379/0"
@@ -67,6 +81,13 @@ spec:
     roleGroups:
       default:
         replicas: 1
+        resources:
+          cpu:
+            min: "200m"
+            max: "800m"
+          memory:
+            min: "384Mi"
+            limit: "1.5Gi"
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/opt/airflow/dags"
         podOverrides:
