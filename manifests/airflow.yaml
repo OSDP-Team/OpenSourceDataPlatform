@@ -52,7 +52,6 @@ spec:
         replicas: 1
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
-          AIRFLOW__WEBSERVER__BASE_URL: "http://10.0.136.176:8080/"
         podOverrides:
           spec:
             containers:
