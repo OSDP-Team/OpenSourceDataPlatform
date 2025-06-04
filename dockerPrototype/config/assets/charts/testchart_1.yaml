@@ -1,0 +1,39 @@
+slice_name: testchart
+description: null
+certified_by: null
+certification_details: null
+viz_type: table
+params:
+  datasource: 1__table
+  viz_type: table
+  query_mode: aggregate
+  groupby:
+  - VALUEDATE
+  - VALUE
+  - STATE_VAL
+  - AVG
+  - TEXT
+  time_grain_sqla: P1D
+  temporal_columns_lookup: {}
+  metrics: []
+  all_columns: []
+  percent_metrics: []
+  adhoc_filters: []
+  order_by_cols: []
+  row_limit: 1000
+  server_page_length: 10
+  order_desc: true
+  table_timestamp_format: smart_date
+  allow_render_html: true
+  show_cell_bars: true
+  color_pn: true
+  comparison_color_scheme: Green
+  conditional_formatting: []
+  comparison_type: values
+  extra_form_data: {}
+  dashboards: []
+query_context: '{"datasource":{"id":1,"type":"table"},"force":false,"queries":[{"filters":[],"extras":{"having":"","where":""},"applied_time_extras":{},"columns":["VALUEDATE","VALUE","STATE_VAL","AVG","TEXT"],"metrics":[],"orderby":[],"annotation_layers":[],"row_limit":1000,"series_limit":0,"order_desc":true,"url_params":{},"custom_params":{},"custom_form_data":{},"post_processing":[],"time_offsets":[]}],"form_data":{"datasource":"1__table","viz_type":"table","query_mode":"aggregate","groupby":["VALUEDATE","VALUE","STATE_VAL","AVG","TEXT"],"time_grain_sqla":"P1D","temporal_columns_lookup":{},"metrics":[],"all_columns":[],"percent_metrics":[],"adhoc_filters":[],"order_by_cols":[],"row_limit":1000,"server_page_length":10,"order_desc":true,"table_timestamp_format":"smart_date","allow_render_html":true,"show_cell_bars":true,"color_pn":true,"comparison_color_scheme":"Green","conditional_formatting":[],"comparison_type":"values","extra_form_data":{},"dashboards":[],"force":false,"result_format":"json","result_type":"full"},"result_format":"json","result_type":"full"}'
+cache_timeout: null
+uuid: 7695dbc8-702a-4fe1-8433-bd64b9b64112
+version: 1.0.0
+dataset_uuid: 05a7e1bf-2e21-46ee-a0d2-36f9ede389fc

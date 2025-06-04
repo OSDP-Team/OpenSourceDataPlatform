@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: analyse-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  superset:
+    build:
+      context: ..
+      dockerfile: docker/superset.Dockerfile
+    container_name: superset
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY}
+      - SUPERSET_DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - SUPERSET_USER=${SUPERSET_USER}
+      - SUPERSET_PASSWORD=${SUPERSET_PASSWORD}
+    volumes:
+      - superset_home:/app/superset_home
+      - ../config/init_superset.sh:/app/init_superset.sh
+      - ../config/superset_config.py:/app/pythonpath/superset_config.py
+      # - ./config/assets:/app/config/assets  # Einbinden um Yamls automatisch zu importieren
+    depends_on:
+      - postgres
+    command: >
+      /bin/sh -c "
+        chmod +x /app/init_superset.sh &&
+        /app/init_superset.sh
+      "
+
+volumes:
+  pgdata:
+  superset_home:
