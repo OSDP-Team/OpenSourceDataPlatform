@@ -59,7 +59,7 @@ spec:
             limit: "1Gi"
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
-          AIRFLOW__WEBSERVER__BASE_URL: "http://10.0.160.223:8080"
+          AIRFLOW__WEBSERVER__BASE_URL: "http://10.0.136.176:8080/"
 
   celeryExecutors:
     roleGroups:
