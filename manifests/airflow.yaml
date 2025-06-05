@@ -52,7 +52,17 @@ spec:
         replicas: 1
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
-          AIRFLOW__WEBSERVER__BASE_URL: "http://10.0.160.223:8080"
+        podOverrides:
+          spec:
+            containers:
+              - name: airflow
+                resources:
+                  requests:
+                    cpu: "100m"
+                    memory: "256Mi"
+                  limits:
+                    cpu: "500m"
+                    memory: "1Gi"
 
   celeryExecutors:
     roleGroups:
@@ -62,6 +72,17 @@ spec:
           AIRFLOW_CORE_DAGS_FOLDER: "/opt/airflow/dags"
           AIRFLOW_CELERY_BROKER_URL: "redis://:redis@airflow-redis-master.default.svc.cluster.local:6379/0"
           AIRFLOW_CELERY_RESULT_BACKEND: "db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local:5432/airflow"
+        podOverrides:
+          spec:
+            containers:
+              - name: airflow
+                resources:
+                  requests:
+                    cpu: "300m"
+                    memory: "512Mi"
+                  limits:
+                    cpu: "1"
+                    memory: "2Gi"
 
   schedulers:
     roleGroups:
@@ -73,3 +94,10 @@ spec:
           spec:
             containers:
               - name: airflow
+                resources:
+                  requests:
+                    cpu: "200m"
+                    memory: "384Mi"
+                  limits:
+                    cpu: "800m"
+                    memory: "1.5Gi"
