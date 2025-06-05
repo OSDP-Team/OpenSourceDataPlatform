@@ -73,7 +73,7 @@ Erfolgreiche Durchläufe werden in der Datei `output/log.txt` dokumentiert.
 
 ---
 
-## 📊 Superset verwenden
+## Superset verwenden
 
 Nach dem Start mit `docker compose up -d` ist Superset im Browser erreichbar unter:
 
