@@ -11,38 +11,48 @@ Diese Dokumentation beschreibt den empfohlenen Ablauf für die Zusammenarbeit in
 
 ---
 
+## Aufsetzen
+
+- Repository aufsetzen mit:
+- clone Link
+- Acces Token
+- Username
+
+---
+
 ## Standard-Workflow für Teammitglieder
 
 ### 1. Lokalen `master` aktualisieren
 Vor jeder Änderung sicherstellen, dass du den neuesten Stand hast:
 
-```bash
-git checkout master
-git pull origin master
-```
+![Step](./Steps/Step_1.png)
 
-### 2. Neuen Branch erstellen
+- Master branch auswählen
+- Änderungen pullen
 
-```bash
-git checkout -b feature/meine-aenderung
-```
+### 2. Neuen Branch erstellen/wechseln
 
-> Benennung: `feature/`, `bugfix/`, `refactor/`, `test/`, `hotfix/` etc.
+![Step](./Steps/Step_2.png)
 
-Falls der Branch schon existiert -> gleicher Befehl ohne -b
+- In Branch wechseln
+- Oder mit blauer Schaltfläche neuen erstellen
 
-### 3. Änderungen vornehmen & committen
+### 3. Änderungen vornehmen
 
-```bash
-git add .
-git commit -m "[Feature] Implementiert neue Ansicht für XYZ"
-```
+![Step](./Steps/Step_3.png)
 
-### 4. Branch pushen
+- Changed: Zeigt veränderte Dateien
+- Untracked: Zeigt neue Dateien
+- Änderungen mit "+" übernehmen
 
-```bash
-git push origin feature/meine-aenderung
-```
+### 4. Committen & Branch pushen
+
+![Step](./Steps/Step_4.png)
+
+- Staged: Zeigt übernommene Veränderungen (können auch wieder rausgenommen werden)
+- Commit Nachricht schreiben!
+- Commit Schaltfläche drücken
+- Pushen
 
 ### 5. Pull Request (PR) stellen
 
