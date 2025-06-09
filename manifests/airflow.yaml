@@ -52,6 +52,9 @@ spec:
         replicas: 1
         envOverrides:
           AIRFLOW_CORE_DAGS_FOLDER: "/stackable/app/git-0/current/airflowDags"
+          AIRFLOW__WEBSERVER__AUTH_BACKEND: "airflow.www.auth.backend.auth_backend_password"
+          AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: "true"
+          AIRFLOW__WEBSERVER__SECRET_KEY: "thisISaSECRET_1234"
         podOverrides:
           spec:
             containers:
