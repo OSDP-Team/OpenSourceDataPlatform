@@ -1,12 +1,11 @@
 from airflow import DAG
-from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+from kubernetes import client, config
+from kubernetes.client.rest import ApiException
 from datetime import datetime
-import subprocess
+import yaml
 import logging
-import os
 
-# Define your SparkApplication YAML
 spark_app_yaml = """
 apiVersion: spark.stackable.tech/v1alpha1
 kind: SparkApplication
@@ -38,24 +37,47 @@ spec:
 """
 
 def submit_spark_job():
-    yaml_path = "/tmp/spark_app.yaml"
-    with open(yaml_path, "w") as f:
-        f.write(spark_app_yaml)
+    # Kubernetes Config laden (im Cluster oder local)
+    try:
+        config.load_incluster_config()
+    except config.ConfigException:
+        config.load_kube_config()
 
-    # subprocess ausführen, Output einfangen
-    result = subprocess.run(
-        ["kubectl", "apply", "-f", yaml_path],
-        capture_output=True,
-        text=True
-    )
+    # YAML in Python dict parsen
+    spark_app = yaml.safe_load(spark_app_yaml)
 
-    logging.info(f"kubectl apply stdout:\n{result.stdout}")
-    if result.returncode != 0:
-        logging.error(f"kubectl apply failed with code {result.returncode}")
-        logging.error(f"kubectl apply stderr:\n{result.stderr}")
-        raise Exception(f"kubectl apply failed: {result.stderr}")
-    else:
-        logging.info("SparkApplication successfully applied.")
+    # CustomObjects API benutzen
+    api = client.CustomObjectsApi()
+
+    group = "spark.stackable.tech"
+    version = "v1alpha1"
+    namespace = "default"
+    plural = "sparkapplications"
+
+    try:
+        # SparkApplication erstellen
+        api.create_namespaced_custom_object(
+            group=group,
+            version=version,
+            namespace=namespace,
+            plural=plural,
+            body=spark_app
+        )
+        logging.info("SparkApplication created successfully")
+    except ApiException as e:
+        if e.status == 409:
+            logging.info("SparkApplication already exists, updating it")
+            api.replace_namespaced_custom_object(
+                group=group,
+                version=version,
+                namespace=namespace,
+                plural=plural,
+                name=spark_app["metadata"]["name"],
+                body=spark_app
+            )
+        else:
+            logging.error(f"Failed to create SparkApplication: {e}")
+            raise
 
 with DAG(
     "clone_and_run_spark_inline_yaml",
@@ -64,7 +86,6 @@ with DAG(
     catchup=False
 ) as dag:
 
-    # Step 1: Clone GitHub repo with PySpark job
     clone_repo = BashOperator(
         task_id='clone_private_repo',
         bash_command="""
@@ -75,7 +96,6 @@ with DAG(
         """
     )
 
-    # Step 2: Submit SparkApplication using kubectl
     run_spark_job = PythonOperator(
         task_id='submit_spark_app',
         python_callable=submit_spark_job
