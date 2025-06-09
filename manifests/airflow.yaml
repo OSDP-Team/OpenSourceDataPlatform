@@ -74,6 +74,10 @@ spec:
           AIRFLOW_CELERY_RESULT_BACKEND: "db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local:5432/airflow"
         podOverrides:
           spec:
+            volumes:
+            - name: shared-spark-volume
+              persistentVolumeClaim:
+                claimName: shared-spark-pvc
             containers:
               - name: airflow
                 resources:
