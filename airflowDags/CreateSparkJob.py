@@ -11,7 +11,7 @@ metadata:
   namespace: default
 spec:
   mode: cluster
-  mainApplicationFile: local:///shared/code/your-private-repo/path/to/job.py
+  mainApplicationFile: local:///shared/code/Open-Source-Data-Platform/blob/master/airflowDags/SparkTest.py
   sparkImage:
     image: ghcr.io/stackable/spark:3.4.1-debian-11-r0
   driver:
@@ -43,7 +43,7 @@ with DAG("clone_and_run_spark_inline_yaml",
         task_id='clone_private_repo',
         bash_command="""
         GIT_TOKEN="{{ var.value.GITHUB_TOKEN }}"
-        git clone https://${GIT_TOKEN}@github.com/youruser/your-private-repo.git /shared/code/your-private-repo
+        git clone https://${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /shared/code/your-private-repo
         """
     )
 
