@@ -43,7 +43,7 @@ with DAG("clone_and_run_spark_inline_yaml",
         task_id='clone_private_repo',
         bash_command="""
         GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}'
-        git clone https://${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /tmp/your-private-repo
+        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /tmp/your-private-repo
         """
     )
 
