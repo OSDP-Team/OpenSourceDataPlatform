@@ -2,9 +2,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
-from kubernetes import client, config
-from kubernetes.utils import create_from_dict
-import yaml
+import os
 
 # Define your SparkApplication YAML
 spark_app_yaml = """
@@ -38,11 +36,10 @@ spec:
 """
 
 def submit_spark_job():
-    # Load Kubernetes cluster config from within the Airflow pod
-    config.load_incluster_config()
-    api_client = client.ApiClient()
-    doc = yaml.safe_load(spark_app_yaml)
-    create_from_dict(api_client, doc)
+    yaml_path = "/tmp/spark_app.yaml"
+    with open(yaml_path, "w") as f:
+        f.write(spark_app_yaml)
+    os.system(f"kubectl apply -f {yaml_path}")
 
 with DAG(
     "clone_and_run_spark_inline_yaml",
@@ -61,7 +58,7 @@ with DAG(
         """
     )
 
-    # Step 2: Submit Spark job to Stackable Spark Operator
+    # Step 2: Submit SparkApplication using kubectl
     run_spark_job = PythonOperator(
         task_id='submit_spark_app',
         python_callable=submit_spark_job
