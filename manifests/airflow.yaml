@@ -80,6 +80,9 @@ spec:
                 claimName: shared-spark-pvc
             containers:
               - name: airflow
+              volumeMounts:
+              - name: shared-spark-volume
+                  mountPath: /shared
                 resources:
                   requests:
                     cpu: "300m"
