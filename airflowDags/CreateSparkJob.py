@@ -2,6 +2,8 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
+import subprocess
+import logging
 import os
 
 # Define your SparkApplication YAML
@@ -39,7 +41,21 @@ def submit_spark_job():
     yaml_path = "/tmp/spark_app.yaml"
     with open(yaml_path, "w") as f:
         f.write(spark_app_yaml)
-    os.system(f"kubectl apply -f {yaml_path}")
+
+    # subprocess ausführen, Output einfangen
+    result = subprocess.run(
+        ["kubectl", "apply", "-f", yaml_path],
+        capture_output=True,
+        text=True
+    )
+
+    logging.info(f"kubectl apply stdout:\n{result.stdout}")
+    if result.returncode != 0:
+        logging.error(f"kubectl apply failed with code {result.returncode}")
+        logging.error(f"kubectl apply stderr:\n{result.stderr}")
+        raise Exception(f"kubectl apply failed: {result.stderr}")
+    else:
+        logging.info("SparkApplication successfully applied.")
 
 with DAG(
     "clone_and_run_spark_inline_yaml",
