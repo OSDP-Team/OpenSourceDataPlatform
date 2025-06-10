@@ -26,40 +26,50 @@ metadata:
   name: spark-connect
   labels:
     stackable.tech/vendor: Stackable
-    stackable.tech/stack: mm-stack
-    stackable.tech/demo: mm-demo
 spec:
   image:
-    custom: oci.stackable.tech/stackable/spark-connect-client:3.5.5-stackable25.3.0
-    productVersion: 3.5.5
+    # Using an image that includes scikit-learn (among other things)
+    # because this package needs to be available on the executors.
+    custom: oci.stackable.tech/stackable/spark-connect-client:3.5.6-stackable0.0.0-dev
+    productVersion: 3.5.6
     pullPolicy: IfNotPresent
-
+  args:
   server:
     configOverrides:
       spark-defaults.conf:
+        spark.jars.ivy: /tmp/ivy2
         spark.driver.memory: "2g"
-        spark.jars.ivy: "/tmp/ivy2"
     podOverrides:
       spec:
-        serviceAccountName: spark
+        containers:
+          - name: spark
+            env:
+              - name: HADOOP_CONF_DIR
+                value: /hdfs-config
+            volumeMounts:
+              - name: hdfs-discovery-configmap
+                mountPath: /hdfs-config
+        volumes:
+          - name: hdfs-discovery-configmap
+            configMap:
+              name: hdfs
     config:
+      listenerClass: external-unstable
       resources:
         memory:
-          limit: "2.5Gi"
+          limit: "2Gi"
       logging:
         enableVectorAgent: false
         containers:
           spark:
             custom:
               configMap: spark-connect-log-config
-
   executor:
     configOverrides:
       spark-defaults.conf:
-        spark.executor.instances: "2"
-        spark.executor.cores: "1"
-        spark.executor.memory: "2g"
-        spark.executor.memoryOverhead: "512m"
+        spark.executor.instances: "4"
+        spark.executor.memory: "3g"
+        spark.executor.memoryOverhead: "0m"
     config:
       resources:
         memory:
