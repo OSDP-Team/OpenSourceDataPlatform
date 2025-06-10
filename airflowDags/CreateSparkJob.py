@@ -27,9 +27,38 @@ spark_app = {
     "spec": {
         "sparkImage": {"productVersion": "3.5.5"},
         "mode": "cluster",
-        "mainApplicationFile": "local:///tmp/your-private-repo/airflowDags/SparkTest.py",
-        "driver": {"config": {"resources": {"memory": {"limit": "1Gi"}}}},
-        "executor": {"replicas": 1, "config": {"resources": {"memory": {"limit": "2Gi"}}}}
+        "mainApplicationFile": "local:///mnt/shared/your-private-repo/airflowDags/SparkTest.py",
+        "volumes": [
+            {
+                "name": "shared-storage",
+                "persistentVolumeClaim": {
+                    "claimName": "shared-spark-pvc"
+                }
+            }
+        ],
+        "driver": {
+            "config": {
+                "resources": {"memory": {"limit": "1Gi"}},
+                "volumeMounts": [
+                    {
+                        "name": "shared-storage",
+                        "mountPath": "/mnt/shared"
+                    }
+                ]
+            }
+        },
+        "executor": {
+            "replicas": 1,
+            "config": {
+                "resources": {"memory": {"limit": "2Gi"}},
+                "volumeMounts": [
+                    {
+                        "name": "shared-storage",
+                        "mountPath": "/mnt/shared"
+                    }
+                ]
+            }
+        }
     }
 }
 
@@ -47,11 +76,11 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
     clone_repo = BashOperator(
         task_id='clone_repo',
         bash_command="""
-        rm -rf /tmp/your-private-repo || true 
+        rm -rf /mnt/shared/your-private-repo || true 
         GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
         GIT_USER='{{ var.value.GIT_USER }}' 
-        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /tmp/your-private-repo
-        """ 
+        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /mnt/shared/your-private-repo
+        """
     )
     
     submit_spark_job = SparkKubernetesOperator(
