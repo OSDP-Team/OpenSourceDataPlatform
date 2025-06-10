@@ -40,7 +40,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         bash_command="""
         kubectl delete sparkapplication spark-job -n default || true
         echo "Sleeping for 15 seconds to allow resource cleanup"
-        sleep 15
+        sleep 30
         """,
     )
     
