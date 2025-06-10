@@ -12,3 +12,17 @@ rules:
   - apiGroups: ["spark.stackable.tech"]
     resources: ["sparkconnectservers", "sparkapplications"]
     verbs: ["get", "list", "watch", "create", "delete", "update"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: spark-connect-clusterrolebinding
+subjects:
+  - kind: ServiceAccount
+    name: spark-connect-serviceaccount   # Den Namen musst du prüfen!
+    namespace: default                   # Namespace prüfen!
+roleRef:
+  kind: ClusterRole
+  name: spark-connect-clusterrole
+  apiGroup: rbac.authorization.k8s.io
