@@ -5,8 +5,7 @@ from airflow.models import BaseOperator
 from airflow.providers.cncf.kubernetes.hooks.kubernetes import KubernetesHook
 from datetime import datetime
 
-# SparkApplication YAML
-spark_yaml = {
+
 class SparkKubernetesOperator(BaseOperator):
     def __init__(self, application_file, namespace="default", **kwargs):
         super().__init__(**kwargs)
