@@ -15,6 +15,10 @@ rules:
   - apiGroups: ["rbac.authorization.k8s.io"]
     resources: ["rolebindings", "clusterrolebindings"]
     verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
+  - apiGroups: ["listeners.stackable.tech"]
+    resources: ["listeners"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
+
 
 ---
 
