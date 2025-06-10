@@ -90,7 +90,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         rm -rf /mnt/shared/your-private-repo || true 
         GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
         GIT_USER='{{ var.value.GIT_USER }}' 
-        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /shared/your-private-repo
+        git clone --config core.filemode=false https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /shared/your-private-repo
         """
     )
     
