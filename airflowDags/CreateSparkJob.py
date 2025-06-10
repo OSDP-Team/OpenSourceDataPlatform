@@ -90,15 +90,20 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         mkdir -p /tmp/gitclone
         cd /tmp/gitclone
         
-        git clone --branch master https://<user>:<password>@github.com/NESuchi/Open-Source-Data-Platform.git
-
+        git clone --branch master https://<user>:<password>@github.com/NESuchi/Open-Source-Data-Platform.git || { echo "Git clone failed"; exit 1; }
+        
+        ls -l Open-Source-Data-Platform
+        ls -l Open-Source-Data-Platform/airflowDags
+        
         echo "User info:"
         whoami
         id
         
         echo "Vor dem Kopieren, Inhalt /shared:"
         ls -la /shared
-        cp Open-Source-Data-Platform/airflowDags/*.py /shared/
+        
+        cp Open-Source-Data-Platform/airflowDags/*.py /shared/ || { echo "Copy failed"; exit 1; }
+        
         echo "Nach dem Kopieren, Inhalt /shared:"
         ls -la /shared
         
