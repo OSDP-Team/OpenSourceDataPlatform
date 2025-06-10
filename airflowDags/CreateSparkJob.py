@@ -35,7 +35,7 @@ spark_app = {
             {
                 "name": "shared-volume",
                 "persistentVolumeClaim": {
-                    "claimName": "shared-spark-pvc"
+                    "claimName": "spark-shared-pvc"
                 }
             }
         ],
