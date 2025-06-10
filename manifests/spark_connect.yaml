@@ -42,6 +42,18 @@ spec:
     podOverrides:
       spec:
         serviceAccountName: spark
+        containers:
+          - name: spark
+            env:
+              - name: HADOOP_CONF_DIR
+                value: /hdfs-config
+            volumeMounts:
+              - name: hdfs-discovery-configmap
+                mountPath: /hdfs-config
+        volumes:
+          - name: hdfs-discovery-configmap
+            configMap:
+              name: hdfs
     config:
       resources:
         memory:
