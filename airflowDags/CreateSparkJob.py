@@ -48,7 +48,7 @@ spark_app = {
             "volumeMounts": [
                 {
                     "name": "shared-volume",
-                    "mountPath": "/mnt/shared"
+                    "mountPath": "/shared"
                 }
             ],
             "securityContext": {
