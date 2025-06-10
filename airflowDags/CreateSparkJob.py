@@ -30,7 +30,7 @@ spark_app = {
     "spec": {
         "sparkImage": {"productVersion": "3.5.5"},
         "mode": "cluster",
-    "mainApplicationFile": "local:///shared/your-private-repo/airflowDags/SparkTest.py",
+    "mainApplicationFile": "local:///shared/SparkTest.py",
         "volumes": [
             {
                 "name": "shared-volume",
