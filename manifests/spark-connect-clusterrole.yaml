@@ -4,24 +4,28 @@ metadata:
   name: spark-connect-clusterrole
 rules:
   - apiGroups: [""]
-    resources: ["pods", "services", "endpoints", "persistentvolumeclaims"]
-    verbs: ["get", "list", "watch", "create", "delete", "update"]
+    resources: ["pods", "services", "endpoints", "persistentvolumeclaims", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
   - apiGroups: ["apps"]
-    resources: ["deployments", "replicasets"]
-    verbs: ["get", "list", "watch", "create", "delete", "update"]
+    resources: ["deployments", "replicasets", "statefulsets"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
   - apiGroups: ["spark.stackable.tech"]
     resources: ["sparkconnectservers", "sparkapplications"]
-    verbs: ["get", "list", "watch", "create", "delete", "update"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["rolebindings", "clusterrolebindings"]
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
 
 ---
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: spark-connect-clusterrolebinding
 subjects:
   - kind: ServiceAccount
-    name: spark-connect-serviceaccount   # Den Namen musst du prüfen!
-    namespace: default                   # Namespace prüfen!
+    name: spark-k8s-operator-serviceaccount     # genau prüfen, ob so der SA-Name ist
+    namespace: stackable-operators               # Namespace des ServiceAccounts prüfen
 roleRef:
   kind: ClusterRole
   name: spark-connect-clusterrole
