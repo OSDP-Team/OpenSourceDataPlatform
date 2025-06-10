@@ -18,7 +18,6 @@ class SparkKubernetesOperator(BaseOperator):
         )
 
 spark_app = {
-spark_app = {
     "apiVersion": "spark.stackable.tech/v1alpha1",
     "kind": "SparkApplication",
     "metadata": {"name": "spark-job", "namespace": "default"},
