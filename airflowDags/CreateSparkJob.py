@@ -89,8 +89,11 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         bash_command="""
         mkdir -p /tmp/gitclone
         cd /tmp/gitclone
+
+        GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
+        GIT_USER='{{ var.value.GIT_USER }}' 
         
-        git clone --branch master https://<user>:<password>@github.com/NESuchi/Open-Source-Data-Platform.git || { echo "Git clone failed"; exit 1; }
+        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git 
         
         ls -l Open-Source-Data-Platform
         ls -l Open-Source-Data-Platform/airflowDags
