@@ -36,7 +36,6 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
 
     clone_repo = BashOperator(
         task_id='clone_repo',
-        bash_command=
         bash_command= 
         """
         rm -rf /tmp/your-private-repo || true 
@@ -46,7 +45,6 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
          """ 
     )
 
-    submit_spark_job = KubernetesPodOperator(
     submit_spark_job = SparkKubernetesOperator(
         task_id='submit_spark_job',
         name='spark-submitter',
