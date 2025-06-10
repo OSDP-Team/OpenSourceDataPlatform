@@ -53,7 +53,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         arguments=['apply', '-f', '-'],
         env_vars={'KUBECONFIG': '/var/run/secrets/kubernetes.io/serviceaccount'},
         in_cluster=True,
-        body_template=str(spark_yaml).replace("'", '"')
+        body_template=str(spark_yaml).replace("'", '"'),
         application_file=spark_app
     )
 
