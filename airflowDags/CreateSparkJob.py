@@ -18,6 +18,7 @@ class SparkKubernetesOperator(BaseOperator):
         )
 
 spark_app = {
+spark_app = {
     "apiVersion": "spark.stackable.tech/v1alpha1",
     "kind": "SparkApplication",
     "metadata": {"name": "spark-job", "namespace": "default"},
@@ -25,7 +26,34 @@ spark_app = {
         "sparkImage": {"productVersion": "3.5.5"},
         "mode": "cluster",
         "mainApplicationFile": "local:///tmp/your-private-repo/airflowDags/SparkTest.py",
-        "driver": {"config": {"resources": {"memory": {"limit": "1Gi"}}}},
+        "driver": {
+            "config": {
+                "resources": {"memory": {"limit": "1Gi"}},
+                "initContainers": [
+                    {
+                        "name": "git-clone",
+                        "image": "alpine/git",
+                        "command": ["sh", "-c"],
+                        "args": [
+                            "git clone https://$(GIT_USER):$(GIT_TOKEN)@github.com/NESuchi/Open-Source-Data-Platform.git /tmp/your-private-repo"
+                        ],
+                        "env": [
+                            {"name": "GIT_USER", "value": "your-username"},
+                            {"name": "GIT_TOKEN", "value": "your-token"}
+                        ],
+                        "volumeMounts": [
+                            {"name": "shared-data", "mountPath": "/tmp"}
+                        ]
+                    }
+                ],
+                "volumes": [
+                    {"name": "shared-data", "emptyDir": {}}
+                ],
+                "volumeMounts": [
+                    {"name": "shared-spark-pvc", "mountPath": "/tmp"}
+                ]
+            }
+        },
         "executor": {"replicas": 1, "config": {"resources": {"memory": {"limit": "2Gi"}}}}
     }
 }
@@ -39,7 +67,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         rm -rf /tmp/your-private-repo || true 
         GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
         GIT_USER='{{ var.value.GIT_USER }}' 
-        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /tmp/your-private-repo
+        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /shared/your-private-repo
          """ 
     )
 
