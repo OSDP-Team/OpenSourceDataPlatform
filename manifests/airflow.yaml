@@ -67,7 +67,7 @@ spec:
                     cpu: "500m"
                     memory: "1Gi"
 
- celeryExecutors:
+  celeryExecutors:
     roleGroups:
       default:
         replicas: 2
