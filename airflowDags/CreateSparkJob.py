@@ -37,7 +37,11 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
     
     cleanup_task = BashOperator(
         task_id='cleanup_previous_spark_job',
-        bash_command='kubectl delete sparkapplication spark-job -n default || true',
+        bash_command="""
+        kubectl delete sparkapplication spark-job -n default || true
+        echo "Sleeping for 15 seconds to allow resource cleanup"
+        sleep 15
+        """,
     )
     
     clone_repo = BashOperator(
