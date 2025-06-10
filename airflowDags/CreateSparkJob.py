@@ -1,4 +1,4 @@
-from airflow import DAGAdd commentMore actions
+from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.providers.cncf.kubernetes.operators.kubernetes_pod import KubernetesPodOperator
 from airflow.models import BaseOperator
