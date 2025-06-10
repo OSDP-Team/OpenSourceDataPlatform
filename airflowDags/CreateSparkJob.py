@@ -61,13 +61,21 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
 
     clone_repo = BashOperator(
         task_id='clone_repo',
-        bash_command= 
-        """
-        rm -rf /tmp/your-private-repo || true 
+        clone_repo = BashOperator(
+        task_id='download_repo',
+        bash_command="""
+        rm -rf /shared/your-private-repo || true
         GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
-        GIT_USER='{{ var.value.GIT_USER }}' 
-        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /shared/your-private-repo
-         """ 
+        GIT_USER='{{ var.value.GIT_USER }}'
+        curl -L -H "Authorization: token ${GIT_TOKEN}" \
+             -o /shared/repo.zip \
+             https://api.github.com/repos/NESuchi/Open-Source-Data-Platform/zipball/main
+        cd /shared && unzip -q repo.zip
+        mv /shared/NESuchi-Open-Source-Data-Platform-* /shared/your-private-repo
+        rm /shared/repo.zip
+        chmod -R 755 /shared/your-private-repo
+        """
+) 
     )
 
     submit_spark_job = SparkKubernetesOperator(
