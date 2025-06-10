@@ -111,6 +111,18 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         ls -la /shared
         
         rm -rf /tmp/gitclone
+
+        timeout=30
+        while [ ! -f /shared/SparkTest.py ] && [ $timeout -gt 0 ]; do
+          echo "Warte auf SparkTest.py..."
+          sleep 1
+          timeout=$((timeout - 1))
+        done
+        
+        if [ ! -f /shared/SparkTest.py ]; then
+          echo "Fehler: SparkTest.py wurde nicht rechtzeitig gefunden"
+          exit 1
+        fi
         """
     )
     
