@@ -87,12 +87,11 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
     clone_repo = BashOperator(
         task_id='clone_repo',
         bash_command="""
-        rm -rf /tmp/your-private-repo || true
-        rm -rf /shared/your-private-repo || true
+        mkdir -p /mnt/shared
+        rm -rf /mnt/shared/your-private-repo || true
         GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
         GIT_USER='{{ var.value.GIT_USER }}' 
-        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /tmp/your-private-repo
-        cp -r /tmp/your-private-repo /shared/your-private-repo
+        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /mnt/shared/your-private-repo
         """
     )
     
