@@ -23,14 +23,17 @@ class SparkKubernetesOperator(BaseOperator):
 spark_app = {
     "apiVersion": "spark.stackable.tech/v1alpha1",
     "kind": "SparkApplication",
-    "metadata": {"name": "spark-job", "namespace": "default"},
+    "metadata": {
+        "name": "spark-job",
+        "namespace": "default"
+    },
     "spec": {
         "sparkImage": {"productVersion": "3.5.5"},
         "mode": "cluster",
         "mainApplicationFile": "local:///mnt/shared/your-private-repo/airflowDags/SparkTest.py",
         "volumes": [
             {
-                "name": "shared-storage",
+                "name": "shared-volume",
                 "persistentVolumeClaim": {
                     "claimName": "shared-spark-pvc"
                 }
@@ -38,25 +41,35 @@ spark_app = {
         ],
         "driver": {
             "config": {
-                "resources": {"memory": {"limit": "1Gi"}},
-                "volumeMounts": [
-                    {
-                        "name": "shared-storage",
-                        "mountPath": "/mnt/shared"
-                    }
-                ]
+                "resources": {
+                    "memory": {"limit": "1Gi"}
+                }
+            },
+            "volumeMounts": [
+                {
+                    "name": "shared-volume",
+                    "mountPath": "/mnt/shared"
+                }
+            ],
+            "securityContext": {
+                "fsGroup": 1000
             }
         },
         "executor": {
             "replicas": 1,
             "config": {
-                "resources": {"memory": {"limit": "2Gi"}},
-                "volumeMounts": [
-                    {
-                        "name": "shared-storage",
-                        "mountPath": "/mnt/shared"
-                    }
-                ]
+                "resources": {
+                    "memory": {"limit": "2Gi"}
+                }
+            },
+            "volumeMounts": [
+                {
+                    "name": "shared-volume",
+                    "mountPath": "/mnt/shared"
+                }
+            ],
+            "securityContext": {
+                "fsGroup": 1000
             }
         }
     }
