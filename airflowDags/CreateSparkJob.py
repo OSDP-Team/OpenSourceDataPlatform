@@ -35,6 +35,12 @@ spark_app = {
 }
 
 with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, catchup=False) as dag:
+    
+    cleanup_task = BashOperator(
+    task_id='cleanup_previous_spark_job',
+    bash_command='kubectl delete sparkapplication spark-job -n default || true',
+)
+
     clone_repo = BashOperator(
         task_id='clone_repo',
         bash_command="""
@@ -50,4 +56,4 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         application_file=spark_app
     )
     
-    clone_repo >> submit_spark_job
+    cleanup_task >> clone_repo >> submit_spark_job
