@@ -87,19 +87,13 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
     clone_repo = BashOperator(
         task_id='clone_repo',
         bash_command="""
-        #!/bin/bash
-        set -e
-        
-        # In temporäres Verzeichnis klonen
         mkdir -p /tmp/gitclone
         cd /tmp/gitclone
         
         git clone --branch master https://<user>:<password>@github.com/NESuchi/Open-Source-Data-Platform.git
         
-        # Nur relevante .py-Dateien aus dem Subordner kopieren
         cp Open-Source-Data-Platform/airflowDags/*.py /shared/
         
-        # Optional: Cleanup
         rm -rf /tmp/gitclone
         """
     )
