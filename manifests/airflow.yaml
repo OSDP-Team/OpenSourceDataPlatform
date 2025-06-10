@@ -67,7 +67,7 @@ spec:
                     cpu: "500m"
                     memory: "1Gi"
 
-  celeryExecutors:
+ celeryExecutors:
     roleGroups:
       default:
         replicas: 2
@@ -77,6 +77,8 @@ spec:
           AIRFLOW_CELERY_RESULT_BACKEND: "db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local:5432/airflow"
         podOverrides:
           spec:
+            securityContext:
+              fsGroup: 1000  
             volumes:
               - name: shared-spark-volume
                 persistentVolumeClaim:
