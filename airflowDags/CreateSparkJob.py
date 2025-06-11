@@ -28,9 +28,11 @@ spark_app = {
         "namespace": "default"
     },
     "spec": {
-        "sparkImage": {"productVersion": "3.5.5"},
+        "sparkImage": {
+            "productVersion": "3.5.5"
+        },
         "mode": "cluster",
-   "mainApplicationFile": "local:///shared/SparkTest.py",
+        "mainApplicationFile": "local:///shared/SparkTest.py",  # verwendet Datei aus PVC
         "volumes": [
             {
                 "name": "shared-volume",
@@ -42,7 +44,13 @@ spark_app = {
         "driver": {
             "config": {
                 "resources": {
-                    "memory": {"limit": "1Gi"}
+                    "cpu": {
+                        "min": "1",
+                        "max": "2"
+                    },
+                    "memory": {
+                        "limit": "1Gi"
+                    }
                 }
             },
             "volumeMounts": [
@@ -59,7 +67,13 @@ spark_app = {
             "replicas": 1,
             "config": {
                 "resources": {
-                    "memory": {"limit": "2Gi"}
+                    "cpu": {
+                        "min": "1",
+                        "max": "2"
+                    },
+                    "memory": {
+                        "limit": "1Gi"
+                    }
                 }
             },
             "volumeMounts": [
@@ -74,6 +88,7 @@ spark_app = {
         }
     }
 }
+
 
 with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, catchup=False) as dag:
     
