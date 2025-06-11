@@ -28,7 +28,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
     git_user = Variable.get("GIT_USER")
     git_token = Variable.get("GITHUB_TOKEN")
     
-   spark_app = {
+    spark_app = {
     "apiVersion": "spark.stackable.tech/v1alpha1",
     "kind": "SparkApplication",
     "metadata": {
