@@ -20,6 +20,7 @@ class SparkKubernetesOperator(BaseOperator):
             namespace=self.namespace
         )
 
+# SparkApplication mit ConfigMap statt PVC
 spark_app = {
     "apiVersion": "spark.stackable.tech/v1alpha1",
     "kind": "SparkApplication",
@@ -30,12 +31,12 @@ spark_app = {
     "spec": {
         "sparkImage": {"productVersion": "3.5.5"},
         "mode": "cluster",
-   "mainApplicationFile": "local:///shared/SparkTest.py",
+        "mainApplicationFile": "local:///opt/spark/scripts/SparkTest.py",
         "volumes": [
             {
-                "name": "shared-volume",
-                "persistentVolumeClaim": {
-                    "claimName": "shared-spark-pvc"
+                "name": "script-volume",
+                "configMap": {
+                    "name": "spark-script"
                 }
             }
         ],
@@ -47,8 +48,8 @@ spark_app = {
             },
             "volumeMounts": [
                 {
-                    "name": "shared-volume",
-                    "mountPath": "/shared"
+                    "name": "script-volume",
+                    "mountPath": "/opt/spark/scripts"
                 }
             ],
             "securityContext": {
@@ -64,8 +65,8 @@ spark_app = {
             },
             "volumeMounts": [
                 {
-                    "name": "shared-volume",
-                    "mountPath": "/shared"
+                    "name": "script-volume",
+                    "mountPath": "/opt/spark/scripts"
                 }
             ],
             "securityContext": {
@@ -76,59 +77,38 @@ spark_app = {
 }
 
 with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, catchup=False) as dag:
-    
+
     cleanup_task = BashOperator(
         task_id='cleanup_previous_spark_job',
-        bash_command="""
-        kubectl delete sparkapplication spark-job -n default || true
-        """,
+        bash_command="kubectl delete sparkapplication spark-job -n default || true"
     )
 
-    clone_repo = BashOperator(
-        task_id='clone_repo',
+    clone_and_create_configmap = BashOperator(
+        task_id='clone_and_create_configmap',
         bash_command="""
+        rm -rf /tmp/gitclone
         mkdir -p /tmp/gitclone
         cd /tmp/gitclone
 
-        GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
-        GIT_USER='{{ var.value.GIT_USER }}' 
-        
-        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git 
-        
-        ls -l Open-Source-Data-Platform
-        ls -l Open-Source-Data-Platform/airflowDags
-        
-        echo "User info:"
-        whoami
-        id
-        
-        echo "Vor dem Kopieren, Inhalt /shared:"
-        ls -la /shared
-        
-        cp Open-Source-Data-Platform/airflowDags/*.py /shared/ || { echo "Copy failed"; exit 1; }
-        
-        echo "Nach dem Kopieren, Inhalt /shared:"
-        ls -la /shared
-        
-        rm -rf /tmp/gitclone
+        GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}'
+        GIT_USER='{{ var.value.GIT_USER }}'
 
-        timeout=30
-        while [ ! -f /shared/SparkTest.py ] && [ $timeout -gt 0 ]; do
-          echo "Warte auf SparkTest.py..."
-          sleep 1
-          timeout=$((timeout - 1))
-        done
-        
-        if [ ! -f /shared/SparkTest.py ]; then
-          echo "Fehler: SparkTest.py wurde nicht rechtzeitig gefunden"
-          exit 1
+        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git
+
+        cd Open-Source-Data-Platform/airflowDags
+
+        if [ ! -f SparkTest.py ]; then
+            echo "SparkTest.py nicht gefunden!"
+            exit 1
         fi
+
+        kubectl create configmap spark-script --from-file=SparkTest.py=./SparkTest.py -n default --dry-run=client -o yaml | kubectl apply -f -
         """
     )
-    
+
     submit_spark_job = SparkKubernetesOperator(
         task_id='submit_spark_job',
         application_file=spark_app
     )
-    
-    cleanup_task >> clone_repo >> submit_spark_job
+
+    cleanup_task >> clone_and_create_configmap >> submit_spark_job
