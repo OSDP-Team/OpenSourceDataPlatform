@@ -87,7 +87,7 @@ spec:
               - name: airflow
                 volumeMounts:
                   - name: shared-spark-volume
-                    mountPath: /shared
+                    mountPath: /mnt/volumes/shared-volume
                 resources:
                   requests:
                     cpu: "300m"
