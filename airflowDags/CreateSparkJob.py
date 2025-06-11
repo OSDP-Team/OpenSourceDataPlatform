@@ -28,7 +28,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
     git_user = Variable.get("GIT_USER")
     git_token = Variable.get("GITHUB_TOKEN")
     
-    spark_app = {
+   spark_app = {
     "apiVersion": "spark.stackable.tech/v1alpha1",
     "kind": "SparkApplication",
     "metadata": {
@@ -40,15 +40,15 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
             "productVersion": "3.5.5"
         },
         "mode": "cluster",
-        "mainApplicationFile": "local:///tmp/SparkTest.py",  # this path inside driver
-        "volumes": [   # define shared volume here ONLY ONCE
+        "mainApplicationFile": "local:///tmp/SparkTest.py",
+        "volumes": [
             {
                 "name": "shared-volume",
                 "emptyDir": {}
             }
         ],
         "driver": {
-            "volumeMounts": [   # mount shared volume here
+            "volumeMounts": [
                 {
                     "mountPath": "/tmp",
                     "name": "shared-volume"
@@ -59,8 +59,8 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
                     "name": "git-clone",
                     "image": "alpine/git",
                     "env": [
-                        {"name": "GIT_USER", "value": git_user},
-                        {"name": "GIT_TOKEN", "value": git_token},
+                        {"name": "GIT_USER", "value": "{{ var.value.GIT_USER }}"},
+                        {"name": "GIT_TOKEN", "value": "{{ var.value.GITHUB_TOKEN }}"},
                     ],
                     "command": [
                         "sh",
@@ -78,7 +78,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
             "config": {
                 "resources": {
                     "cpu": {"min": "1", "max": "2"},
-                    "memory": {"limit": "1Gi"},
+                    "memory": {"limit": "1Gi"}
                 }
             },
             "securityContext": {
@@ -87,7 +87,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         },
         "executor": {
             "replicas": 1,
-            "volumeMounts": [    # also mount volume here if needed
+            "volumeMounts": [
                 {
                     "mountPath": "/tmp",
                     "name": "shared-volume"
@@ -96,7 +96,7 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
             "config": {
                 "resources": {
                     "cpu": {"min": "1", "max": "2"},
-                    "memory": {"limit": "1Gi"},
+                    "memory": {"limit": "1Gi"}
                 }
             },
             "securityContext": {
@@ -105,7 +105,6 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         }
     }
 }
-
     cleanup_task = BashOperator(
         task_id='cleanup_previous_spark_job',
         bash_command="kubectl delete sparkapplication spark-job -n default || true"
