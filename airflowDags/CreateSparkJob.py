@@ -41,19 +41,16 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         },
         "mode": "cluster",
         "mainApplicationFile": "local:///tmp/SparkTest.py",
+
+        # ✅ Volumes must be defined globally
         "volumes": [
             {
                 "name": "shared-volume",
                 "emptyDir": {}
             }
         ],
+
         "driver": {
-            "volumeMounts": [
-                {
-                    "mountPath": "/tmp",
-                    "name": "shared-volume"
-                }
-            ],
             "initContainers": [
                 {
                     "name": "git-clone",
@@ -65,14 +62,23 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
                     "command": [
                         "sh",
                         "-c",
-                        "git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git /tmp/code && cp /tmp/code/airflowDags/SparkTest.py /tmp/"
+                        (
+                            "git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git "
+                            "/tmp/code && cp /tmp/code/airflowDags/SparkTest.py /tmp/"
+                        )
                     ],
                     "volumeMounts": [
                         {
-                            "mountPath": "/tmp",
-                            "name": "shared-volume"
+                            "name": "shared-volume",
+                            "mountPath": "/tmp"
                         }
                     ]
+                }
+            ],
+            "volumeMounts": [
+                {
+                    "name": "shared-volume",
+                    "mountPath": "/tmp"
                 }
             ],
             "config": {
@@ -85,12 +91,13 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
                 "fsGroup": 1000
             }
         },
+
         "executor": {
             "replicas": 1,
             "volumeMounts": [
                 {
-                    "mountPath": "/tmp",
-                    "name": "shared-volume"
+                    "name": "shared-volume",
+                    "mountPath": "/tmp"
                 }
             ],
             "config": {
