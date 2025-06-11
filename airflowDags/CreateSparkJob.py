@@ -84,12 +84,12 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         """,
     )
 
-    clone_repo = BashOperator(
+        clone_repo = BashOperator(
         task_id='clone_repo',
         bash_command="""
         mkdir -p /tmp/gitclone
         cd /tmp/gitclone
-
+    
         GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
         GIT_USER='{{ var.value.GIT_USER }}' 
         
@@ -111,13 +111,6 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         ls -la /shared
         
         rm -rf /tmp/gitclone
-
-        timeout=30
-        while [ ! -f /shared/SparkTest.py ] && [ $timeout -gt 0 ]; do
-          echo "Warte auf SparkTest.py..."
-          sleep 1
-          timeout=$((timeout - 1))
-        done
         
         if [ ! -f /shared/SparkTest.py ]; then
           echo "Fehler: SparkTest.py wurde nicht rechtzeitig gefunden"
