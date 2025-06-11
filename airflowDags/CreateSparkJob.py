@@ -83,40 +83,40 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
         kubectl delete sparkapplication spark-job -n default || true
         """,
     )
-
-        clone_repo = BashOperator(
-        task_id='clone_repo',
-        bash_command="""
-        mkdir -p /tmp/gitclone
-        cd /tmp/gitclone
     
-        GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
-        GIT_USER='{{ var.value.GIT_USER }}' 
+    clone_repo = BashOperator(
+    task_id='clone_repo',
+    bash_command="""
+    mkdir -p /tmp/gitclone
+    cd /tmp/gitclone
+    
+    GIT_TOKEN='{{ var.value.GITHUB_TOKEN }}' 
+    GIT_USER='{{ var.value.GIT_USER }}' 
         
-        git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git 
+    git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git 
         
-        ls -l Open-Source-Data-Platform
-        ls -l Open-Source-Data-Platform/airflowDags
+    ls -l Open-Source-Data-Platform
+    ls -l Open-Source-Data-Platform/airflowDags
         
-        echo "User info:"
-        whoami
-        id
+    echo "User info:"
+    whoami
+    id
         
-        echo "Vor dem Kopieren, Inhalt /shared:"
-        ls -la /shared
+    echo "Vor dem Kopieren, Inhalt /shared:"
+    ls -la /shared
         
-        cp Open-Source-Data-Platform/airflowDags/*.py /shared/ || { echo "Copy failed"; exit 1; }
+    cp Open-Source-Data-Platform/airflowDags/*.py /shared/ || { echo "Copy failed"; exit 1; }
         
-        echo "Nach dem Kopieren, Inhalt /shared:"
-        ls -la /shared
+    echo "Nach dem Kopieren, Inhalt /shared:"
+    ls -la /shared
         
-        rm -rf /tmp/gitclone
+    rm -rf /tmp/gitclone
         
-        if [ ! -f /shared/SparkTest.py ]; then
-          echo "Fehler: SparkTest.py wurde nicht rechtzeitig gefunden"
-          exit 1
-        fi
-        """
+    if [ ! -f /shared/SparkTest.py ]; then
+    echo "Fehler: SparkTest.py wurde nicht rechtzeitig gefunden"
+    exit 1
+    fi
+    """
     )
     
     submit_spark_job = SparkKubernetesOperator(
