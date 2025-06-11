@@ -59,8 +59,8 @@ with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, c
                     "name": "git-clone",
                     "image": "alpine/git",
                     "env": [
-                        {"name": "GIT_USER", "value": "{{ var.value.GIT_USER }}"},
-                        {"name": "GIT_TOKEN", "value": "{{ var.value.GITHUB_TOKEN }}"},
+                        {"name": "GIT_USER", "value": git_user},
+                        {"name": "GIT_TOKEN", "value": git_token},
                     ],
                     "command": [
                         "sh",
