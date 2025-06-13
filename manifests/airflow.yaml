@@ -77,6 +77,8 @@ spec:
           AIRFLOW_CELERY_RESULT_BACKEND: "db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local:5432/airflow"
         podOverrides:
           spec:
+            securityContext:
+              fsGroup: 1000  
             volumes:
               - name: shared-spark-volume
                 persistentVolumeClaim:
@@ -85,7 +87,7 @@ spec:
               - name: airflow
                 volumeMounts:
                   - name: shared-spark-volume
-                    mountPath: /shared
+                    mountPath: /mnt/volumes/shared-volume
                 resources:
                   requests:
                     cpu: "300m"
