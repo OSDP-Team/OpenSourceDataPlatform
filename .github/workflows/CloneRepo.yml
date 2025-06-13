@@ -22,7 +22,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t ghcr.io/leartigashi/sparkrepoimage:latest .
+            docker build -t ghcr.io/leartigashi/sparkrepoimage:latest -f dockerfiles/RepoImageDockerfile dockerfiles/
 
     - name: Push Docker image
       run: |
