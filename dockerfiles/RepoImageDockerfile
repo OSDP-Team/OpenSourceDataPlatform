@@ -4,8 +4,8 @@ RUN apt-get update && apt-get install -y git
 
 WORKDIR /app
 
-COPY dockerfiles/SparkRepoRequirements.txt /app/
-RUN pip install -r /app/SparkRepoRequirements.txt
+#COPY dockerfiles/SparkRepoRequirements.txt /app/
+#RUN pip install -r /app/SparkRepoRequirements.txt
 
 COPY . /app
 
