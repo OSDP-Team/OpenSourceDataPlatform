@@ -4,13 +4,10 @@ RUN apt-get update && apt-get install -y git
 
 WORKDIR /jobs
 
-# Copy entire repo to /jobs (so Stackable can copy from here)
-COPY . /jobs
+# Copy only the files inside airflowDags folder (but NOT the folder itself)
+COPY airflowDags/*.py /jobs/
 
 # Install Python dependencies if you have requirements.txt
 # RUN pip install --no-cache-dir -r requirements.txt
-
-# Optional: if your spark job runs Python scripts, you can set an entrypoint or CMD
-# But Stackable usually runs the spark-submit command itself, so just keep the container ready
 
 CMD ["sleep", "infinity"]
