@@ -35,33 +35,32 @@ with DAG(
         task_id="cleanup_previous_spark_job",
         bash_command="kubectl delete sparkapplication pysparktest-job -n default || true"
     )
-resources = {
-    "cpu": {"min": "1", "max": "2"},
-    "memory": {"limit": "1Gi"}
-}
-
-spark_app = {
-    "apiVersion": "spark.stackable.tech/v1alpha1",
-    "kind": "SparkApplication",
-    "metadata": {
-        "name": "pysparktest-job",
-        "namespace": "default"
-    },
-    "spec": {
-        "image": "ghcr.io/leartigashi/sparkrepoimage:latest",
-        "sparkImage": {
-            "productVersion": "3.5.5",
-            "pullSecrets": [{"name": "ghcr-secret"}]
+    resources = {
+        "cpu": {"min": "1", "max": "2"},
+        "memory": {"limit": "1Gi"}
+    }
+    spark_app = {
+        "apiVersion": "spark.stackable.tech/v1alpha1",
+        "kind": "SparkApplication",
+        "metadata": {
+            "name": "pysparktest-job",
+            "namespace": "default"
         },
-        "mode": "cluster",
-        "mainApplicationFile": "local:///stackable/spark/jobs/SparkTest.py",
-        "driver": {"config": {"resources": resources}},
-        "executor": {
-            "replicas": 1,
-            "config": {"resources": resources}
+        "spec": {
+            "image": "ghcr.io/leartigashi/sparkrepoimage:latest",
+            "sparkImage": {
+                "productVersion": "3.5.5",
+                "pullSecrets": [{"name": "ghcr-secret"}]
+            },
+            "mode": "cluster",
+            "mainApplicationFile": "local:///stackable/spark/jobs/SparkTest.py",
+            "driver": {"config": {"resources": resources}},
+            "executor": {
+                "replicas": 1,
+                "config": {"resources": resources}
+            }
         }
     }
-}
 
     submit_spark_job = SparkKubernetesOperator(
         task_id="submit_spark_job",
