@@ -23,102 +23,48 @@ class SparkKubernetesOperator(BaseOperator):
         )
 
 
-with DAG("spark_job", start_date=datetime(2023, 1, 1), schedule_interval=None, catchup=False) as dag:
+with DAG(
+    "spark_stackable_job",
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
+    catchup=False,
+    description="Submit a Stackable SparkApplication via custom operator",
+) as dag:
 
-    git_user = Variable.get("GIT_USER")
-    git_token = Variable.get("GITHUB_TOKEN")
-    
-    spark_app = {
+    cleanup_task = BashOperator(
+        task_id="cleanup_previous_spark_job",
+        bash_command="kubectl delete sparkapplication pysparktest-job -n default || true"
+    )
+resources = {
+    "cpu": {"min": "1", "max": "2"},
+    "memory": {"limit": "1Gi"}
+}
+
+spark_app = {
     "apiVersion": "spark.stackable.tech/v1alpha1",
     "kind": "SparkApplication",
     "metadata": {
-        "name": "spark-job",
+        "name": "pysparktest-job",
         "namespace": "default"
     },
     "spec": {
+        "image": "ghcr.io/leartigashi/sparkrepoimage:latest",
         "sparkImage": {
-            "productVersion": "3.5.5"
+            "productVersion": "3.5.5",
+            "pullSecrets": [{"name": "ghcr-secret"}]
         },
         "mode": "cluster",
-        "mainApplicationFile": "local:///tmp/SparkTest.py",
-
-        # ✅ Volumes must be defined globally
-        "volumes": [
-            {
-                "name": "shared-volume",
-                "emptyDir": {}
-            }
-        ],
-
-        "driver": {
-            "initContainers": [
-                {
-                    "name": "git-clone",
-                    "image": "alpine/git",
-                    "env": [
-                        {"name": "GIT_USER", "value": git_user},
-                        {"name": "GIT_TOKEN", "value": git_token},
-                    ],
-                    "command": [
-                        "sh",
-                        "-c",
-                        (
-                            "git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/NESuchi/Open-Source-Data-Platform.git "
-                            "/tmp/code && cp /tmp/code/airflowDags/SparkTest.py /tmp/"
-                        )
-                    ],
-                    "volumeMounts": [
-                        {
-                            "name": "shared-volume",
-                            "mountPath": "/tmp"
-                        }
-                    ]
-                }
-            ],
-            "volumeMounts": [
-                {
-                    "name": "shared-volume",
-                    "mountPath": "/tmp"
-                }
-            ],
-            "config": {
-                "resources": {
-                    "cpu": {"min": "1", "max": "2"},
-                    "memory": {"limit": "1Gi"}
-                }
-            },
-            "securityContext": {
-                "fsGroup": 1000
-            }
-        },
-
+        "mainApplicationFile": "local:///stackable/spark/jobs/SparkTest.py",
+        "driver": {"config": {"resources": resources}},
         "executor": {
             "replicas": 1,
-            "volumeMounts": [
-                {
-                    "name": "shared-volume",
-                    "mountPath": "/tmp"
-                }
-            ],
-            "config": {
-                "resources": {
-                    "cpu": {"min": "1", "max": "2"},
-                    "memory": {"limit": "1Gi"}
-                }
-            },
-            "securityContext": {
-                "fsGroup": 1000
-            }
+            "config": {"resources": resources}
         }
     }
 }
-    cleanup_task = BashOperator(
-        task_id='cleanup_previous_spark_job',
-        bash_command="kubectl delete sparkapplication spark-job -n default || true"
-    )
 
     submit_spark_job = SparkKubernetesOperator(
-        task_id='submit_spark_job',
+        task_id="submit_spark_job",
         application_file=spark_app
     )
 
