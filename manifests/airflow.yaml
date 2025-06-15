@@ -37,7 +37,7 @@ spec:
     credentialsSecret: simple-airflow-credentials
 
     dagsGitSync:
-      - repo: https://github.com/NESuchi/Open-Source-Data-Platform
+      - repo: https://github.com/OSDP-Team/OpenSourceDataPlatform
         branch: "master"
         gitFolder: "airflowDags"
         depth: 10
