@@ -10,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
 
   superset:
     build:
@@ -27,7 +28,6 @@ services:
       - superset_home:/app/superset_home
       - ../config/init_superset.sh:/app/init_superset.sh
       - ../config/superset_config.py:/app/pythonpath/superset_config.py
-      # - ./config/assets:/app/config/assets  # Einbinden um Yamls automatisch zu importieren
     depends_on:
       - postgres
     command: >
@@ -35,7 +35,71 @@ services:
         chmod +x /app/init_superset.sh &&
         /app/init_superset.sh
       "
+    restart: unless-stopped
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped 
+  
+  spark-master:
+    image: bitnami/spark:3.5.1 
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - "SPARK_CONF_--conf spark.hadoop.fs.s3a.endpoint=${MINIO_ENDPOINT}"
+      - "SPARK_CONF_--conf spark.hadoop.fs.s3a.access.key=${MINIO_ROOT_USER}"
+      - "SPARK_CONF_--conf spark.hadoop.fs.s3a.secret.key=${MINIO_ROOT_PASSWORD}"
+      - "SPARK_CONF_--conf spark.hadoop.fs.s3a.path.style.access=true"
+      - "SPARK_CONF_--conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem"
+    ports:
+      - '8080:8080'
+      - '7077:7077'
+    volumes:
+      - ./spark-app:/opt/bitnami/spark/apps
+    depends_on:
+      - minio
+    restart: unless-stopped
+
+  spark-worker:
+    image: bitnami/spark:3.5.1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077 
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+    depends_on:
+      - spark-master
+    restart: unless-stopped
+
+  jupyter:
+    image: jupyter/pyspark-notebook:latest 
+    container_name: jupyter
+    ports:
+      - '8888:8888' 
+      - '4040:4040' 
+    volumes:
+      - ../notebooks:/home/jovyan/work
+    depends_on:
+      - spark-master
+      - spark-worker
+
 
 volumes:
   pgdata:
   superset_home:
+  minio_data:
+  spark-app:

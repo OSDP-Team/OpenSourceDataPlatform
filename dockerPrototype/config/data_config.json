@@ -1,0 +1,37 @@
+{   
+    "dataSourceName": "Heizkraftwerk",
+    "source": {
+        "path": "s3a://bronze/Data",
+        "format": "csv",
+        "options": {
+            "header": "true",
+            "delimeter": ";",
+            "inferSchema": "false"
+        }
+    },
+    "destination": {
+        "path": "s3a://silber/",
+        "format": "parquet",
+        "partitionBy": ["year", "month"]
+    },
+    "schema": {
+        "COMP_LEVEL": "string",
+        "VALUEDATE": "string",
+        "MESS_ID": "string",
+        "VALUE": "string",
+        "STATE_VAL": "string",
+        "STATE_ACQ": "string",
+        "STATE_COR": "string",
+        "ENTRDATE": "string",
+        "MIN": "string",
+        "MINDATE": "string",
+        "MAX": "string",
+        "MAXDATE": "string",
+        "AVG": "string",
+        "SUM": "string",
+        "PVALUE": "string",
+        "OFFSET": "string",
+        "VERSION": "string",
+        "TEXT": "string"
+    }
+}
