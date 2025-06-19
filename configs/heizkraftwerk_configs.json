@@ -1,0 +1,36 @@
+{   
+    "dataSourceName": "Heizkraftwerk",
+    "source": {
+        "path": "data/read/a_Gas_GOM_M2_d_kWhHs_20220101000000_20230101000000.csv",
+        "format": "csv",
+        "options": {
+            "header": "true",
+            "delimeter": ";"
+        }
+    },
+    "destination": {
+        "path": "data/read/a_Gas_GOM_M2_d_kWhHs_20220101000000_20230101000000.csv",
+        "format": "csv",
+        "partitionBy": ["year", "month"]
+    },
+    "schema": {
+        "COMP_LEVEL": "string",
+        "VALUEDATE": "string",
+        "MESS_ID": "string",
+        "VALUE": "string",
+        "STATE_VAL": "string",
+        "STATE_ACQ": "string",
+        "STATE_COR": "string",
+        "ENTRDATE": "string",
+        "MIN": "string",
+        "MINDATE": "string",
+        "MAX": "string",
+        "MAXDATE": "string",
+        "AVG": "string",
+        "SUM": "string",
+        "PVALUE": "string",
+        "OFFSET": "string",
+        "VERSION": "string",
+        "TEXT": "string"
+    }
+}
