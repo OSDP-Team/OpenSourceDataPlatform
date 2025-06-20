@@ -86,13 +86,15 @@ services:
     restart: unless-stopped
 
   jupyter:
-    image: jupyter/pyspark-notebook:latest 
+    build:
+      context: ..
+      dockerfile: docker/jupyter.Dockerfile
     container_name: jupyter
     ports:
       - '8888:8888' 
       - '4040:4040' 
     volumes:
-      - ../notebooks:/home/jovyan/work
+      - ..:/home/jovyan/work
     depends_on:
       - spark-master
       - spark-worker
