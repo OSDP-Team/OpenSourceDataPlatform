@@ -22,7 +22,12 @@ jobs:
     - name: Convert .ipynb notebooks to .py files
       run: |
         for notebook in notebooks/*.ipynb; do
-          jupyter nbconvert --to script "$notebook"
+          if [ -s "$notebook" ]; then  # Prüft, ob Datei nicht leer ist
+            echo "Converting $notebook"
+            jupyter nbconvert --to script "$notebook" || echo "Failed to convert $notebook"
+          else
+            echo "Skipping empty notebook: $notebook"
+          fi
         done
 
     - name: Log in to GitHub Container Registry
