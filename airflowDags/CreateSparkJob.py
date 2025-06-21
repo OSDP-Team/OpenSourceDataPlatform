@@ -53,7 +53,7 @@ with DAG(
                 "pullSecrets": [{"name": "ghcr-secret"}]
             },
             "mode": "cluster",
-            "mainApplicationFile": "local:///stackable/spark/jobs/SparkTest.py",
+            "mainApplicationFile": "local:///stackable/spark/jobs/hierstarten.py",
             "driver": {"config": {"resources": resources}},
             "executor": {
                 "replicas": 1,
