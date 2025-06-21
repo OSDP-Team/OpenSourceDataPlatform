@@ -3,7 +3,7 @@ name: Build and Push Spark Docker Image
 on:
   push:
     branches:
-      - master  # oder 'master'
+      - master
 
 jobs:
   build-and-push:
@@ -12,6 +12,18 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+
+    - name: Set up Python and install Jupyter
+      run: |
+        sudo apt-get update
+        python3 -m pip install --upgrade pip
+        pip install notebook
+
+    - name: Convert .ipynb notebooks to .py files
+      run: |
+        for notebook in notebooks/*.ipynb; do
+          jupyter nbconvert --to script "$notebook"
+        done
 
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v2
@@ -22,7 +34,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-            docker build -t ghcr.io/leartigashi/sparkrepoimage:latest -f dockerfiles/RepoImageDockerfile .
+        docker build -t ghcr.io/leartigashi/sparkrepoimage:latest -f dockerfiles/RepoImageDockerfile .
 
     - name: Push Docker image
       run: |
