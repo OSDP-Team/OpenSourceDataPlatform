@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y git
 WORKDIR /jobs
 
 # Copy only the files inside airflowDags folder (but NOT the folder itself)
-COPY airflowDags/*.py /jobs/
+COPY notebooks/*.py /jobs/
 
 # Install Python dependencies if you have requirements.txt
 # RUN pip install --no-cache-dir -r requirements.txt
