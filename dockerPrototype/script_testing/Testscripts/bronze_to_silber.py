@@ -64,7 +64,7 @@ def main():
         return
 
     cleaned_df = transformed_df.na.drop(subset=["mess_id", "comp_level", "valuedate"])
-    
+    #Ausgabe hinzufügen
     cleaned_df = cleaned_df.filter((col("value") > 0) & (col("pvalue") > 0))
     
     print("Verarbeitete Daten. Neues Schema:")

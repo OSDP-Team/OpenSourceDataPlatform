@@ -39,7 +39,7 @@ def main():
         .withColumn("tag", dayofmonth(col("valuedate"))) \
         .withColumn("stunde", hour(col("valuedate"))) \
         .withColumn("minute", minute(col("valuedate"))) \
-        .withColumn("intervall", lit(15))
+        .withColumn("intervall", lit(15)) # Wie oft werden Daten eingezogen (bspw. täglich oder 15 Minütig)
     
     dim_zeit_df = dim_zeit_df.select("zeit_Id", "datum", "jahr", "monat", "tag", "stunde", "minute", "intervall", "valuedate")
 
