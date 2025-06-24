@@ -48,7 +48,7 @@ def main():
     )
 
     bronze_bucket = "bronze"
-    silver_bucket = "silver"
+    silver_bucket = "silver/data"
     
     bronze_data_path = f"s3a://{bronze_bucket}"
     silver_data_path = f"s3a://{silver_bucket}"
