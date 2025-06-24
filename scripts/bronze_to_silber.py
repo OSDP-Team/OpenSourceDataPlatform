@@ -52,6 +52,9 @@ def main():
     
     bronze_data_path = f"s3a://{bronze_bucket}"
     silver_data_path = f"s3a://{silver_bucket}"
+
+    print(bronze_data_path)
+    print(silver_data_path)
     
     print(f"Lese Daten aus dem Bronze-Verzeichnis: {bronze_data_path}")
     print(f"Schreibe verarbeitete Daten in das Silber-Verzeichnis: {silver_data_path}")
