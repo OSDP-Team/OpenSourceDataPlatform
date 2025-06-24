@@ -116,7 +116,7 @@ def main():
     try:
         print(f"Schreibe Daten nach {silver_data_path}, partitioniert nach mess_id, year, month.")
     
-        partitioned_df.coalesce(1) \
+        partitioned_df \
             .write \
             .mode("overwrite") \
             .partitionBy("modul", "mess_id", "year", "month") \
