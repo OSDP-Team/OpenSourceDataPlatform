@@ -50,7 +50,7 @@ def main():
         (3, "Max", "kWh"),
         (4, "Avg", "kWh"),
         (5, "Sum", "kWh"),
-        (6, "Pvalue", "kWh")
+        (6, "PValue", "kWh")
     ]
     dim_messung_df = spark.createDataFrame(messung_daten, ["messung_Id", "messung_bezeichnung", "messung_einheit"])
 
