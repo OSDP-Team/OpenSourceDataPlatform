@@ -16,6 +16,9 @@ def main():
     minio_user = os.getenv("MINIO_ACCESS_KEY")
     minio_pwd = os.getenv("MINIO_SECRET_KEY")
 
+    print(f"MINIO_ACCESS_KEY: {minio_user}")
+    print(f"MINIO_SECRET_KEY: {minio_pwd}")
+
     if not minio_user or not minio_pwd:
         raise ValueError("MINIO_ACCESS_KEY oder MINIO_SECRET_KEY nicht gesetzt")
 
