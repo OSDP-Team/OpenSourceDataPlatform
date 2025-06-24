@@ -7,11 +7,18 @@ def main():
     """
     Hauptfunktion zur Ausführung des Spark-Jobs.
     """
-    with open("/minio-s3-credentials/accessKey", "r") as f:
-        minio_user = f.read().strip()
+    #with open("/minio-s3-credentials/accessKey", "r") as f:
+    #    minio_user = f.read().strip()
 
-    with open("/minio-s3-credentials/secretKey", "r") as f:
-        minio_pwd = f.read().strip()
+    #with open("/minio-s3-credentials/secretKey", "r") as f:
+   #     minio_pwd = f.read().strip()
+
+    minio_user = os.getenv("MINIO_ACCESS_KEY")
+    minio_pwd = os.getenv("MINIO_SECRET_KEY")
+
+    if not minio_user or not minio_pwd:
+        raise ValueError("MINIO_ACCESS_KEY oder MINIO_SECRET_KEY nicht gesetzt")
+
     
     spark = (
     SparkSession.builder
