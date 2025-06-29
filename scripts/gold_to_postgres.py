@@ -6,10 +6,19 @@ def main():
     Dieses Skript liest die Gold-Tabellen aus MinIO und lädt sie in die
     PostgreSQL-Datenbank.
     """
-    with open("/minio-s3-credentials/accessKey", "r") as f:
-        minio_access_key = f.read().strip()
-    with open("/minio-s3-credentials/secretKey", "r") as f:
-        minio_secret_key = f.read().strip()
+    #with open("/minio-s3-credentials/accessKey", "r") as f:
+     #   minio_access_key = f.read().strip()
+    #with open("/minio-s3-credentials/secretKey", "r") as f:
+     #   minio_secret_key = f.read().strip()
+
+    minio_user = os.getenv("MINIO_ACCESS_KEY")
+    minio_pwd = os.getenv("MINIO_SECRET_KEY")
+
+    print(f"MINIO_ACCESS_KEY: {minio_user}")
+    print(f"MINIO_SECRET_KEY: {minio_pwd}")
+
+    if not minio_user or not minio_pwd:
+        raise ValueError("MINIO_ACCESS_KEY oder MINIO_SECRET_KEY nicht gesetzt")
 
     spark = (
         SparkSession.builder
@@ -24,8 +33,8 @@ def main():
             .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000")
             .config("spark.hadoop.fs.s3a.path.style.access", "true")
             .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
-            .config("spark.hadoop.fs.s3a.access.key", minio_access_key)
-            .config("spark.hadoop.fs.s3a.secret.key", minio_secret_key)
+            .config("spark.hadoop.fs.s3a.access.key", minio_user)
+            .config("spark.hadoop.fs.s3a.secret.key", minio_pwd)
             .getOrCreate()
     )
 
