@@ -38,7 +38,7 @@ def main():
             .getOrCreate()
     )
 
-    gold_bucket = "gold"
+    gold_bucket = "gold/data"
     gold_data_path = f"s3a://{gold_bucket}"
 
     jdbc_hostname = "postgresql-superset"  
