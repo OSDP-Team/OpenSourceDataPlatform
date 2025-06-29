@@ -4,6 +4,8 @@ from airflow.operators.bash import BashOperator
 from airflow.models import BaseOperator
 from airflow.providers.cncf.kubernetes.hooks.kubernetes import KubernetesHook
 from datetime import datetime
+import re
+import uuid
 
 
 class SparkKubernetesOperator(BaseOperator):
@@ -44,13 +46,26 @@ class SparkKubernetesOperator(BaseOperator):
                 )
             except Exception as e:
                 self.log.warning(f"Failed to delete SparkApplication {app_name}: {e}")
+def sanitize_job_name(name: str) -> str:
+    """
+    Converts a script filename to a valid K8s resource name.
+    """
+    base = name.lower().replace(".py", "").replace("_", "-")
+    # Remove all non-allowed characters
+    base = re.sub(r"[^a-z0-9\-]", "", base)
+    # Truncate to safe length (max 63 chars in K8s name)
+    base = base[:50]
+    # Append a short UUID suffix to ensure uniqueness
+    suffix = uuid.uuid4().hex[:8]
+    return f"sparkjob-{base}-{suffix}"
 
 def generate_spark_manifest(script_filename: str) -> dict:
+    job_name = sanitize_job_name(script_filename)
     return {
         "apiVersion": "spark.stackable.tech/v1alpha1",
         "kind": "SparkApplication",
         "metadata": {
-            "name": "sparkjob-" + script_filename.replace(".py", ""),
+            "name": job_name,
             "namespace": "default",
         },
         "spec": {
@@ -100,7 +115,6 @@ def generate_spark_manifest(script_filename: str) -> dict:
             },
         },
     }
-
 
 with DAG(
     "spark_stackable_job",
