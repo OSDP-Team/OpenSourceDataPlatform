@@ -23,7 +23,7 @@ class SparkKubernetesOperator(BaseOperator):
 
     def execute(self, context):
         hook = KubernetesHook(conn_id=None) 
-        api_client = hook.get_api_client()
+        api_client = hook.api_client
         custom_objects_api = api_client.CustomObjectsApi()
 
         log.info(f"Attempting to create SparkApplication: {self.job_name} in namespace: {self.manifest_namespace}")
