@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import Lenis from '@studio-freight/lenis';
+
 import styles from './App.module.css';
 
 import StickyNav from './components/stickyNav/stickyNav';
@@ -19,6 +22,21 @@ const sectionsForNav = [
 ];
 
 function App() {
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+    
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   return (
     <div>
       <StickyNav 
