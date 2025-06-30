@@ -1,0 +1,64 @@
+.wrapper {
+    position: relative;
+    padding: 80px 40px 0;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.mainHeadline {
+    text-align: center;
+    margin-bottom: 80px;
+}
+
+.stickyHeadlineContainer {
+    visibility: hidden;
+}
+
+@media (min-width: 759px) {
+    .mainHeadline {
+        text-align: center;
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: 1280px) {
+    .wrapper {
+        position: relative;
+        padding: 80px 40px 120px 40px;
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+    .mainHeadline {
+        text-align: center;
+        margin-bottom: 80px;
+    }
+
+    .contentGrid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 150px;
+    }
+    
+    .stickyHeadlineContainer {
+        position: sticky;
+        top: 50vh;
+        transform: translateY(-50%);
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        visibility: visible;
+    }
+    
+    .stickyHeadlineContainer h3 {
+        position: absolute;
+        margin: 0;
+    }
+    
+    .scrollingTeamsContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 80px;
+    }
+}

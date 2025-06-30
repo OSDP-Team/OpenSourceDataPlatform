@@ -1,0 +1,83 @@
+.stickyTrigger {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--bgSecondary);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: none;
+    padding: 20px 10px;
+    border-radius: 0 12px 12px 0;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+
+    min-height: 220px; 
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stickyTrigger:hover {
+    background-color: rgba(66, 227, 245, 0.8);
+}
+
+.verticalText {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.menuContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    background-color: #101113;
+    z-index: 1001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.closeOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+}
+
+.linkList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    z-index: 1002; 
+}
+
+.linkList li {
+    margin: 20px 0;
+}
+
+.linkList button {
+    background: none;
+    border: none;
+    color: var(--textSecondary);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.linkList button:hover {
+    color: white;
+    text-shadow:
+        0 0 7px rgba(224, 251, 252, 0.9),
+        0 0 25px rgba(66, 227, 245, 0.6);
+}

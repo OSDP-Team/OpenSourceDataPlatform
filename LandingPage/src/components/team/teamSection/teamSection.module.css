@@ -1,0 +1,14 @@
+.teamSection {
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+}
+
+.team {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: center;
+    gap: 80px;
+    width: 100%;
+}

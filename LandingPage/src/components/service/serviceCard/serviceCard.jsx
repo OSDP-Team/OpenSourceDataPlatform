@@ -1,0 +1,21 @@
+import styles from './serviceCard.module.css';
+
+const ServiceCard = ({ img, headline, text, path }) => {
+    return (
+        <div className={styles.wrapper}>
+            <img src={img} alt="icon" />
+            <h3>{headline}</h3>
+            <p>{text}</p>
+            <a 
+                href={path}
+                target="_blank" 
+                rel="noopener noreferrer"
+                className={styles.button}
+            >
+                Zum Service
+            </a>
+        </div>
+    )
+}
+
+export default ServiceCard;
