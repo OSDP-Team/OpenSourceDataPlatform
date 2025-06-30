@@ -6,8 +6,6 @@ from airflow.providers.cncf.kubernetes.hooks.kubernetes import KubernetesHook
 from datetime import datetime
 import re
 import uuid
-import time
-import json # Import json for pretty printing
 
 class SparkKubernetesOperator(BaseOperator):
     def __init__(self, application_file, namespace="default", delete_after_run=True, poll_interval=10, **kwargs):
@@ -16,91 +14,7 @@ class SparkKubernetesOperator(BaseOperator):
         self.namespace = namespace
         self.delete_after_run = delete_after_run
         self.poll_interval = poll_interval
-
-    def execute(self, context):
-        hook = KubernetesHook(conn_id="kubernetes_in_cluster")
-
-
-        app_name = self.application_file['metadata']['name'] # Get the unique name from the pre-generated manifest
-
-        self.log.info(f"Attempting to create SparkApplication with name: {app_name}")
-        try:
-            app = hook.create_custom_object(
-                group="spark.stackable.tech",
-                version="v1alpha1",
-                plural="sparkapplications",
-                body=self.application_file,
-                namespace=self.namespace,
-            )
-            self.log.info(f"Submitted SparkApplication: {app_name}")
-        except Exception as e:
-            # Handle the case where the job might still exist from a previous failed deletion or quick retry
-            self.log.warning(f"Failed to submit SparkApplication {app_name}: {e}. Checking if it already exists and waiting.")
-            try:
-                app = hook.get_custom_object(
-                    group="spark.stackable.tech",
-                    version="v1alpha1",
-                    plural="sparkapplications",
-                    name=app_name,
-                    namespace=self.namespace,
-                )
-                self.log.info(f"SparkApplication {app_name} already exists. Monitoring its status.")
-            except Exception as get_e:
-                self.log.error(f"Could not submit or retrieve existing SparkApplication {app_name}: {get_e}")
-                raise
-
-        # Wait for job to finish
-        self.log.info(f"Waiting for SparkApplication {app_name} to complete...")
-        while True:
-            try:
-                current_app = hook.get_custom_object(
-                    group="spark.stackable.tech",
-                    version="v1alpha1",
-                    plural="sparkapplications",
-                    name=app_name,
-                    namespace=self.namespace,
-                )
-            except Exception as e:
-                self.log.error(f"Error fetching SparkApplication {app_name} status: {e}")
-                # If we can't even get the object, it might have been deleted externally or there's a serious K8s issue.
-                # In such cases, it might be better to fail or retry.
-                raise Exception(f"Failed to retrieve status for SparkApplication {app_name}: {e}")
-
-            # Log the full status object for debugging
-            self.log.debug(f"Full status for {app_name}: {json.dumps(current_app.get('status', {}), indent=2)}")
-
-            application_state = current_app.get('status', {}).get('applicationState', {}).get('state')
-            self.log.info(f"SparkApplication {app_name} current state: {application_state}")
-
-            if application_state == "COMPLETED":
-                self.log.info(f"SparkApplication {app_name} completed successfully.")
-                break
-            elif application_state in ["FAILED", "UNKNOWN"]:
-                raise Exception(f"SparkApplication {app_name} failed with state: {application_state}")
-            elif application_state is None:
-                self.log.warning(f"SparkApplication {app_name} has no applicationState. This might indicate an issue with the SparkApplication resource itself or its lifecycle.")
-                # You might want to add a timeout here to prevent infinite loops if state never appears
-            time.sleep(self.poll_interval)
-
-        # Delete the SparkApplication after execution
-        if self.delete_after_run:
-            self.log.info(f"Deleting SparkApplication: {app_name}")
-            try:
-                hook.delete_custom_object(
-                    group="spark.stackable.tech",
-                    version="v1alpha1",
-                    plural="sparkapplications",
-                    name=app_name,
-                    namespace=self.namespace,
-                )
-                self.log.info(f"SparkApplication {app_name} deleted successfully.")
-            except Exception as e:
-                self.log.warning(f"Failed to delete SparkApplication {app_name}: {e}. It might have already been deleted or there's a permission issue.")
-
-
-# The sanitize_job_name and generate_spark_manifest functions remain the same
-# ... (your existing code for these functions) ...
-
+        
 def sanitize_job_name(name: str) -> str:
     """
     Converts a script filename to a valid K8s resource name.
