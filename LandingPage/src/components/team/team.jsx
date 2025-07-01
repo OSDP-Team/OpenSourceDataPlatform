@@ -5,7 +5,6 @@ import TeamSection from './teamSection/teamSection';
 
 import dummy from '../../assets/dummy.png';
 import simon from '../../assets/team/simon.jpg';
-import nico from '../../assets/team/nico.png';
 import sven from '../../assets/team/sven.jpg';
 import daniel from '../../assets/team/daniel.png';
 
@@ -21,7 +20,7 @@ const teamsData = [
     },
     {
         members: [
-            { headline: "Developer", name: "Nico Eberhardt", img: nico },
+            { headline: "Developer", name: "Nico Eberhardt", img: dummy },
             { headline: "Developer", name: "Sven Plasch", img: sven },
             { headline: "Developer", name: "Leart Gaschi", img: dummy },
         ]

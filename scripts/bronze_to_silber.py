@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import split
 from pyspark.sql.functions import col, to_timestamp, year, month, dayofmonth
 from pyspark.sql.types import IntegerType, DoubleType
 import os
@@ -76,8 +77,9 @@ def main():
     bronze_df.show(5)
 
     try:
-        transformed_df = bronze_df.select(
+        base_transformed_df = bronze_df.select(
             col("modul"),
+            col("intervall"),
             col("COMP_LEVEL").alias("comp_level").cast(IntegerType()),
             to_timestamp(col("VALUEDATE"), "dd.MM.yyyy HH:mm:ss").alias("valuedate"),
             col("MESS_ID").alias("mess_id").cast(IntegerType()),
@@ -102,9 +104,39 @@ def main():
         spark.stop()
         return
 
-    cleaned_df = transformed_df.na.drop(subset=["mess_id", "comp_level", "valuedate"])
+    try:
+        transformed_df = base_transformed_df.withColumn(
+            "messung_typ",
+            split(col("modul"), "_").getItem(0)
+        )
+    except Exception as e:
+        print(f"Ein Fehler ist bei der Transformation der Messtypen aufgetreten : {e}")
+        spark.stop()
+        return
     
-    cleaned_df = cleaned_df.filter((col("value") > 0) & (col("pvalue") > 0))
+    print("\nStarte Datenbereinigung...")
+    transformed_df.cache()
+    
+    count_initial = transformed_df.count()
+    print(f"Anzahl Zeilen vor der Bereinigung: {count_initial}")
+    
+    df_after_drop = transformed_df.na.drop(subset=["mess_id", "comp_level", "valuedate"])
+    count_after_drop = df_after_drop.count()
+    
+    dropped_by_na = count_initial - count_after_drop
+    if dropped_by_na > 0:
+        print(f"--> {dropped_by_na} Zeilen wurden wegen NULL-Werten entfernt.")
+
+    cleaned_df = df_after_drop.filter((col("value") > 0) & (col("pvalue") > 0))
+    count_after_filter = cleaned_df.count()
+
+    dropped_by_filter = count_after_drop - count_after_filter
+    if dropped_by_filter > 0:
+        print(f"--> {dropped_by_filter} Zeilen wurden wegen ungültiger Messwerte (<= 0) entfernt.")
+
+    print(f"Anzahl Zeilen nach der Bereinigung: {count_after_filter}\n")
+
+    transformed_df.unpersist()
     
     print("Verarbeitete Daten. Neues Schema:")
     cleaned_df.printSchema()
@@ -117,12 +149,12 @@ def main():
         .withColumn("month", month(col("valuedate")))
     
     try:
-        print(f"Schreibe Daten nach {silver_data_path}, partitioniert nach mess_id, year, month.")
+        print(f"Schreibe Daten nach {silver_data_path}, partitioniert nach modul, intervall, mess_id, year, month.")
     
         partitioned_df \
             .write \
             .mode("overwrite") \
-            .partitionBy("modul", "mess_id", "year", "month") \
+            .partitionBy("modul", "intervall", "mess_id", "year", "month") \
             .parquet(silver_data_path)
         
         print("Daten erfolgreich geschrieben.")
