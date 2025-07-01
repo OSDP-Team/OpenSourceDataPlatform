@@ -44,7 +44,7 @@ def main():
     jdbc_hostname = "postgresql-superset"  
     jdbc_port = 5432                       
     jdbc_database = "superset"
-    db_schema = "gold_layer"  
+    db_schema = "public"  
     jdbc_url = f"jdbc:postgresql://{jdbc_hostname}:{jdbc_port}/{jdbc_database}"
     
     connection_properties = {
@@ -77,7 +77,6 @@ def main():
             print(f"Fehler bei der Verarbeitung von Tabelle '{tabelle_name}': {e}")
 
     spark.stop()
-    print("\nAlle Gold-Tabellen erfolgreich in die Superset-Datenbank geladen.")
 
 if __name__ == '__main__':
     main()
