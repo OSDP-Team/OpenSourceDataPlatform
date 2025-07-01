@@ -1,13 +1,20 @@
-FROM python:3.10
+FROM bitnami/spark:3.5.1
+
+USER root
 
 RUN apt-get update && apt-get install -y git
 
-WORKDIR /jobs
+# PostgreSQL JDBC-Treiber hinzufügen (Version ggf. anpassen)
+ADD https://jdbc.postgresql.org/download/postgresql-42.7.3.jar /opt/spark/jars/
 
-# Copy only the files inside airflowDags folder (but NOT the folder itself)
-COPY scripts/*.py /jobs/
 
-# Install Python dependencies if you have requirements.txt
+WORKDIR /stackable/spark/jobs
+
+
+COPY scripts/*.py .
+
+# Optional: requirements.txt installieren, falls vorhanden
+# COPY requirements.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
 
 CMD ["sleep", "infinity"]
