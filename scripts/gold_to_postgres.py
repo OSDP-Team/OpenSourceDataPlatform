@@ -44,6 +44,7 @@ def main():
     jdbc_hostname = "postgresql-superset"  
     jdbc_port = 5432                       
     jdbc_database = "superset"
+    db_schema = "gold_layer"  
     jdbc_url = f"jdbc:postgresql://{jdbc_hostname}:{jdbc_port}/{jdbc_database}"
     
     connection_properties = {
@@ -53,7 +54,7 @@ def main():
     }
 
     print(f"Lade Daten aus Gold-Bucket: {gold_data_path}")
-    print(f"Schreibe Daten nach Superset PostgreSQL an: {jdbc_url}")
+    print(f"Schreibe Daten nach PostgreSQL an: {jdbc_url} (Schema: {db_schema})")
 
     tabellen = ["dim_modul", "dim_zeit", "dim_messung", "faktentabelle"]
 
@@ -63,13 +64,15 @@ def main():
             parquet_pfad = f"{gold_data_path}/{tabelle_name}"
             df = spark.read.parquet(parquet_pfad)
             
+            full_table_name = f"{db_schema}.{tabelle_name.lower()}"
+            
             df.coalesce(1).write.jdbc( 
                 url=jdbc_url,
-                table=tabelle_name.lower(),
+                table=full_table_name, 
                 mode="overwrite",
                 properties=connection_properties
             )
-            print(f"Tabelle '{tabelle_name}' erfolgreich nach PostgreSQL geschrieben.")
+            print(f"Tabelle '{full_table_name}' erfolgreich nach PostgreSQL geschrieben.")
         except Exception as e:
             print(f"Fehler bei der Verarbeitung von Tabelle '{tabelle_name}': {e}")
 
