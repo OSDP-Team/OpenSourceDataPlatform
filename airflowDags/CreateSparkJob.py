@@ -90,10 +90,14 @@ with DAG(
         "local:///stackable/spark/jobs/gold_to_postgres.py"
     ]
 
-    for script_path in script_paths:
-        script_filename = os.path.basename(script_path)            # e.g. bronze_layer.py
-        job_name = script_filename.replace(".py", "")              # bronze_layer
+    def sanitize_job_name(script_filename: str) -> str:
+        name = os.path.splitext(script_filename)[0]  
+        name = name.lower().replace("_", "-")
+        return name.strip("-")                        
 
+    for script_path in script_paths:
+        script_filename = os.path.basename(script_path)        
+        job_name = sanitize_job_name(script_filename)
         cleanup_task = PythonOperator(
             task_id=f"cleanup_{job_name}",
             python_callable=delete_spark_app,
