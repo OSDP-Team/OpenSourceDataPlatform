@@ -1,3 +1,4 @@
+import os
 from airflow import DAG
 from airflow.models import BaseOperator
 from airflow.operators.python import PythonOperator
@@ -24,7 +25,7 @@ class SparkKubernetesOperator(BaseOperator):
         )
 
 
-def delete_spark_app(**kwargs):
+def delete_spark_app(job_name, namespace="default", **kwargs):
     hook = KubernetesHook(conn_id="kubernetes_in_cluster")
     api = hook.get_conn()
     custom_api = CustomObjectsApi(api)
@@ -33,41 +34,29 @@ def delete_spark_app(**kwargs):
         custom_api.delete_namespaced_custom_object(
             group="spark.stackable.tech",
             version="v1alpha1",
-            namespace="default",
+            namespace=namespace,
             plural="sparkapplications",
-            name="pysparktest-job",
+            name=job_name,
         )
-        print("Deleted SparkApplication pysparktest-job")
+        print(f"Deleted SparkApplication {job_name}")
     except ApiException as e:
         if e.status == 404:
-            print("SparkApplication not found, skipping delete")
+            print(f"SparkApplication {job_name} not found, skipping delete")
         else:
             raise
 
 
-with DAG(
-    "spark_stackable_job",
-    start_date=datetime(2023, 1, 1),
-    schedule_interval=None,
-    catchup=False,
-    description="Submit a Stackable SparkApplication via custom operator",
-) as dag:
-
-    cleanup_task = PythonOperator(
-        task_id="cleanup_previous_spark_job",
-        python_callable=delete_spark_app
-    )
-
+def build_spark_manifest(job_name, script_path):
     resources = {
         "cpu": {"min": "1", "max": "2"},
         "memory": {"limit": "1Gi"}
     }
 
-    spark_app = {
+    return {
         "apiVersion": "spark.stackable.tech/v1alpha1",
         "kind": "SparkApplication",
         "metadata": {
-            "name": "pysparktest-job",
+            "name": job_name,
             "namespace": "default"
         },
         "spec": {
@@ -77,7 +66,7 @@ with DAG(
                 "pullSecrets": [{"name": "ghcr-secret"}]
             },
             "mode": "cluster",
-            "mainApplicationFile": "local:///stackable/spark/jobs/SparkTest.py",
+            "mainApplicationFile": script_path,
             "driver": {"config": {"resources": resources}},
             "executor": {
                 "replicas": 1,
@@ -86,9 +75,36 @@ with DAG(
         }
     }
 
-    submit_spark_job = SparkKubernetesOperator(
-        task_id="submit_spark_job",
-        application_file=spark_app
-    )
 
-    cleanup_task >> submit_spark_job
+with DAG(
+    "spark_stackable_multi_job",
+    start_date=datetime(2023, 1, 1),
+    schedule_interval=None,
+    catchup=False,
+    description="Run multiple Stackable Spark jobs via custom operator",
+) as dag:
+
+    script_paths = [
+        "local:///stackable/spark/jobs/bronze_to_silber.py",
+        "local:///stackable/spark/jobs/silber_to_gold.py",
+        "local:///stackable/spark/jobs/gold_to_postgres.py"
+    ]
+
+    for script_path in script_paths:
+        script_filename = os.path.basename(script_path)            # e.g. bronze_layer.py
+        job_name = script_filename.replace(".py", "")              # bronze_layer
+
+        cleanup_task = PythonOperator(
+            task_id=f"cleanup_{job_name}",
+            python_callable=delete_spark_app,
+            op_kwargs={"job_name": job_name}
+        )
+
+        spark_manifest = build_spark_manifest(job_name, script_path)
+
+        submit_task = SparkKubernetesOperator(
+            task_id=f"submit_{job_name}",
+            application_file=spark_manifest
+        )
+
+        cleanup_task >> submit_task
