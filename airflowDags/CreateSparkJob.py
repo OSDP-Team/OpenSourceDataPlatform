@@ -11,29 +11,6 @@ import logging
 
 log = logging.getLogger(__name__)
 
-def delete_spark_app(job_name, namespace="default", **kwargs):
-    hook = KubernetesHook(conn_id="kubernetes_in_cluster")
-    api = hook.get_conn()
-    custom_api = CustomObjectsApi(api)
-
-    try:
-        log.info(f"Trying to delete SparkApplication '{job_name}' in namespace '{namespace}'")
-        custom_api.delete_namespaced_custom_object(
-            group="spark.stackable.tech",
-            version="v1alpha1",
-            namespace=namespace,
-            plural="sparkapplications",
-            name=job_name,
-        )
-        log.info(f"Successfully deleted SparkApplication '{job_name}'")
-    except ApiException as e:
-        if e.status == 404:
-            log.info(f"SparkApplication '{job_name}' not found, skipping delete.")
-        else:
-            log.error(f"Error deleting SparkApplication '{job_name}': {e}")
-            raise
-
-
 class SparkKubernetesOperator(BaseOperator):
     def __init__(self, name, main_application_file, namespace="default", image=None, **kwargs):
         super().__init__(**kwargs)
