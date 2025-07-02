@@ -178,7 +178,7 @@ with DAG(
     cleanup_bronze = PythonOperator(
     task_id="cleanup_bronze_to_silver",
     python_callable=delete_spark_app,
-    op_kwargs={"job_name": "sparkjob-bronze-to-silver"}
+    op_kwargs={"job_name": "sparkjob-bronze-to-silber"}
     )
 
     bronze_to_silver = SparkKubernetesOperator(
