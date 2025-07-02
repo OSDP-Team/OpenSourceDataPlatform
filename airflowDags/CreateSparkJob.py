@@ -1,10 +1,10 @@
-import os
 from airflow import DAG
 from airflow.models import BaseOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.cncf.kubernetes.hooks.kubernetes import KubernetesHook
 from kubernetes.client import CustomObjectsApi
 from kubernetes.client.rest import ApiException
+from kubernetes.client import CoreV1Api
 from datetime import datetime
 import time
 import logging
@@ -24,6 +24,7 @@ class SparkKubernetesOperator(BaseOperator):
         hook = KubernetesHook()
         api_client = hook.get_conn()
         api = CustomObjectsApi(api_client)
+        core_api = CoreV1Api(api_client)
         body = {
                 "apiVersion": "spark.stackable.tech/v1alpha1",
                 "kind": "SparkApplication",
@@ -104,21 +105,42 @@ class SparkKubernetesOperator(BaseOperator):
         )
 
         log.info(f"Waiting for SparkApplication {self.name} to complete...")
-        while True:
-            time.sleep(10)
-            app = api.get_namespaced_custom_object(
-                group="spark.stackable.tech",
-                version="v1alpha1",
-                namespace=self.namespace,
-                plural="sparkapplications",
-                name=self.name
-            )
-            status = app.get("status", {}).get("applicationState", {}).get("state", "UNKNOWN")
-            log.info(f"SparkApplication {self.name} current state: {status}")
-            if status in ["COMPLETED", "FAILED"]:
-                break
 
-        if status == "FAILED":
+        pod_prefix = f"{self.name}-"
+        timeout = 120  # max 10 Minuten warten
+        poll_interval = 10
+        elapsed = 0
+
+        driver_completed = False
+        final_status = "UNKNOWN"
+
+        while elapsed < timeout:
+            time.sleep(poll_interval)
+            elapsed += poll_interval
+
+            # Driver-Pod suchen und Status prüfen
+            pods = core_api.list_namespaced_pod(namespace=self.namespace)
+            driver_pods = [p for p in pods.items if p.metadata.name.startswith(pod_prefix) and "-driver" in p.metadata.name]
+
+            if driver_pods:
+                driver_pod = driver_pods[0]
+                pod_phase = driver_pod.status.phase
+                log.info(f"Driver pod {driver_pod.metadata.name} is in phase: {pod_phase}")
+
+                if pod_phase == "Failed":
+                    # Optional: Logs holen für bessere Fehlersuche
+                    logs = core_api.read_namespaced_pod_log(driver_pod.metadata.name, namespace=self.namespace)
+                    log.error(f"Driver pod logs:\n{logs}")
+                    raise Exception(f"Driver pod {driver_pod.metadata.name} failed. See logs above.")
+
+                if pod_phase in ["Succeeded", "Completed"]:
+                    driver_completed = True
+                    break
+
+        if not driver_completed:
+            raise TimeoutError(f"Driver pod for {self.name} did not complete within {timeout} seconds.")
+
+        if final_status == "FAILED":
             raise Exception(f"SparkApplication {self.name} failed.")
 
         log.info(f"SparkApplication {self.name} completed successfully.")
