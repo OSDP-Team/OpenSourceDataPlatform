@@ -206,7 +206,7 @@ with DAG(
     )
 
     gold_to_postgres = SparkKubernetesOperator(
-        task_id="silver_to_gold",
+        task_id="gold-to-postgres",
         name="sparkjob-gold-to-postgres",
         main_application_file="local:///stackable/spark/jobs/gold_to_postgres.py",
     )
@@ -214,4 +214,4 @@ with DAG(
 
 
 
-    cleanup_bronze >> bronze_to_silver >> cleanup_silver>> silver_to_gold 
+    cleanup_bronze >> bronze_to_silver >> cleanup_silver >> silver_to_gold >> cleanup_gold >> gold_to_postgres
