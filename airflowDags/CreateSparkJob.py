@@ -95,14 +95,19 @@ with DAG(
         name = name.lower().replace("_", "-")
         return name.strip("-")                        
 
+    cleanup_tasks = []
+    submit_tasks = []
+
     for script_path in script_paths:
-        script_filename = os.path.basename(script_path)        
+        script_filename = os.path.basename(script_path)
         job_name = sanitize_job_name(script_filename)
+
         cleanup_task = PythonOperator(
             task_id=f"cleanup_{job_name}",
             python_callable=delete_spark_app,
             op_kwargs={"job_name": job_name}
         )
+        cleanup_tasks.append(cleanup_task)
 
         spark_manifest = build_spark_manifest(job_name, script_path)
 
@@ -110,5 +115,10 @@ with DAG(
             task_id=f"submit_{job_name}",
             application_file=spark_manifest
         )
+        submit_tasks.append(submit_task)
 
         cleanup_task >> submit_task
+
+    # Jetzt kette die Jobs nacheinander
+    for i in range(len(submit_tasks) - 1):
+        submit_tasks[i] >> cleanup_tasks[i + 1]
