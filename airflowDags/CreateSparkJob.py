@@ -3,6 +3,7 @@ from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.models import BaseOperator
 from airflow.providers.cncf.kubernetes.hooks.kubernetes import KubernetesHook
+from kubernetes.client import CustomObjectsApi
 from datetime import datetime
 import re
 import uuid
@@ -23,8 +24,8 @@ class SparkKubernetesOperator(BaseOperator):
 
     def execute(self, context):
         hook = KubernetesHook(conn_id=None) 
-        api_client = hook.api_client
-        custom_objects_api = api_client.CustomObjectsApi()
+        api_client = hook.get_conn()
+        custom_objects_api = CustomObjectsApi(api_client)
 
         log.info(f"Attempting to create SparkApplication: {self.job_name} in namespace: {self.manifest_namespace}")
 
@@ -147,11 +148,6 @@ def generate_spark_manifest(script_filename: str, namespace: str = "default") ->
                     }
                 },
             },
-            # Hinzufügen der Cleanup-Sektion für den Stackable Spark Operator
-            "cleanup": {
-                "type": "Delete", # Dies ist der Standard für automatische Löschung
-                # "ttlSecondsAfterFinished": 300 # Optional: Behält die CRD für 5 Minuten nach Abschluss
-            }
         },
     }
     return manifest
