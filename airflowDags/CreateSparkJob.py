@@ -160,21 +160,21 @@ with DAG(
     )
 
     bronze_to_silver = SparkKubernetesOperator(
-        task_id="bronze_to_silver",
-        name="sparkjob-bronze-to-silver",
-        main_application_file="local:///stackable/spark/jobs/bronze_to_silver.py",
+        task_id="bronze_to_silber",
+        name="sparkjob-bronze-to-silber",
+        main_application_file="local:///stackable/spark/jobs/bronze_to_silber.py",
     )
     
     cleanup_silver = PythonOperator(
-        task_id="cleanup_silver_to_gold",
+        task_id="cleanup_silber_to_gold",
         python_callable=delete_spark_app,
-        op_kwargs={"job_name": "sparkjob-silver-to-gold"}
+        op_kwargs={"job_name": "sparkjob-silber-to-gold"}
     )
 
     silver_to_gold = SparkKubernetesOperator(
         task_id="silver_to_gold",
-        name="sparkjob-silver-to-gold",
-        main_application_file="local:///stackable/spark/jobs/silver_to_gold.py",
+        name="sparkjob-silber-to-gold",
+        main_application_file="local:///stackable/spark/jobs/silber_to_gold.py",
     )
 
     cleanup_gold = PythonOperator(
