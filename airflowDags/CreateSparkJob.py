@@ -200,7 +200,7 @@ with DAG(
     )
 
     cleanup_gold = PythonOperator(
-        task_id="cleanup_silver_to_gold",
+        task_id="cleanup_gold",
         python_callable=delete_spark_app,
         op_kwargs={"job_name": "sparkjob-gold-to-postgres"}
     )
