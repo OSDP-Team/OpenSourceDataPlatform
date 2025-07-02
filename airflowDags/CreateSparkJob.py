@@ -35,10 +35,12 @@ with DAG(
         task_id="cleanup_previous_spark_job",
         bash_command="kubectl delete sparkapplication pysparktest-job -n default || true"
     )
+    
     resources = {
         "cpu": {"min": "1", "max": "2"},
         "memory": {"limit": "1Gi"}
     }
+
     spark_app = {
         "apiVersion": "spark.stackable.tech/v1alpha1",
         "kind": "SparkApplication",
@@ -50,14 +52,61 @@ with DAG(
             "image": "ghcr.io/leartigashi/sparkrepoimage:latest",
             "sparkImage": {
                 "productVersion": "3.5.5",
-                "pullSecrets": [{"name": "ghcr-secret"}]
+                "pullSecrets": [
+                    {"name": "ghcr-secret"}
+                ]
             },
             "mode": "cluster",
-            "mainApplicationFile": "local:///stackable/spark/jobs/bronze_to_silber.py",
-            "driver": {"config": {"resources": resources}},
+            "mainApplicationFile": "local:///stackable/spark/jobs/verify_gold_layer.py",
+            "env": [
+                {
+                    "name": "MINIO_ACCESS_KEY",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "minio-secret",
+                            "key": "MINIO_ACCESS_KEY"
+                        }
+                    }
+                },
+                {
+                    "name": "MINIO_SECRET_KEY",
+                    "valueFrom": {
+                        "secretKeyRef": {
+                            "name": "minio-secret",
+                            "key": "MINIO_SECRET_KEY"
+                        }
+                    }
+                }
+            ],
+            "sparkConf": {
+                "spark.jars": "https://jdbc.postgresql.org/download/postgresql-42.7.3.jar"
+            },
+            "driver": {
+                "config": {
+                    "resources": {
+                        "cpu": {
+                            "min": "1",
+                            "max": "2"
+                        },
+                        "memory": {
+                            "limit": "1Gi"
+                        }
+                    }
+                }
+            },
             "executor": {
                 "replicas": 1,
-                "config": {"resources": resources}
+                "config": {
+                    "resources": {
+                        "cpu": {
+                            "min": "1",
+                            "max": "2"
+                        },
+                        "memory": {
+                            "limit": "1Gi"
+                        }
+                    }
+                }
             }
         }
     }
