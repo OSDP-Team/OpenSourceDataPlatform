@@ -1,8 +1,9 @@
 from airflow import DAG
-from airflow.models import Variable
-from airflow.operators.bash import BashOperator
 from airflow.models import BaseOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.cncf.kubernetes.hooks.kubernetes import KubernetesHook
+from kubernetes.client import CustomObjectsApi
+from kubernetes.client.rest import ApiException
 from datetime import datetime
 
 
@@ -23,6 +24,27 @@ class SparkKubernetesOperator(BaseOperator):
         )
 
 
+def delete_spark_app(**kwargs):
+    hook = KubernetesHook(conn_id="kubernetes_in_cluster")
+    api = hook.get_conn()
+    custom_api = CustomObjectsApi(api)
+
+    try:
+        custom_api.delete_namespaced_custom_object(
+            group="spark.stackable.tech",
+            version="v1alpha1",
+            namespace="default",
+            plural="sparkapplications",
+            name="pysparktest-job",
+        )
+        print("Deleted SparkApplication pysparktest-job")
+    except ApiException as e:
+        if e.status == 404:
+            print("SparkApplication not found, skipping delete")
+        else:
+            raise
+
+
 with DAG(
     "spark_stackable_job",
     start_date=datetime(2023, 1, 1),
@@ -31,11 +53,11 @@ with DAG(
     description="Submit a Stackable SparkApplication via custom operator",
 ) as dag:
 
-    cleanup_task = BashOperator(
+    cleanup_task = PythonOperator(
         task_id="cleanup_previous_spark_job",
-        bash_command="kubectl delete sparkapplication pysparktest-job -n default || true"
+        python_callable=delete_spark_app
     )
-    
+
     resources = {
         "cpu": {"min": "1", "max": "2"},
         "memory": {"limit": "1Gi"}
@@ -52,61 +74,14 @@ with DAG(
             "image": "ghcr.io/leartigashi/sparkrepoimage:latest",
             "sparkImage": {
                 "productVersion": "3.5.5",
-                "pullSecrets": [
-                    {"name": "ghcr-secret"}
-                ]
+                "pullSecrets": [{"name": "ghcr-secret"}]
             },
             "mode": "cluster",
-            "mainApplicationFile": "local:///stackable/spark/jobs/verify_gold_layer.py",
-            "env": [
-                {
-                    "name": "MINIO_ACCESS_KEY",
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": "minio-secret",
-                            "key": "MINIO_ACCESS_KEY"
-                        }
-                    }
-                },
-                {
-                    "name": "MINIO_SECRET_KEY",
-                    "valueFrom": {
-                        "secretKeyRef": {
-                            "name": "minio-secret",
-                            "key": "MINIO_SECRET_KEY"
-                        }
-                    }
-                }
-            ],
-            "sparkConf": {
-                "spark.jars": "https://jdbc.postgresql.org/download/postgresql-42.7.3.jar"
-            },
-            "driver": {
-                "config": {
-                    "resources": {
-                        "cpu": {
-                            "min": "1",
-                            "max": "2"
-                        },
-                        "memory": {
-                            "limit": "1Gi"
-                        }
-                    }
-                }
-            },
+            "mainApplicationFile": "local:///stackable/spark/jobs/SparkTest.py",
+            "driver": {"config": {"resources": resources}},
             "executor": {
                 "replicas": 1,
-                "config": {
-                    "resources": {
-                        "cpu": {
-                            "min": "1",
-                            "max": "2"
-                        },
-                        "memory": {
-                            "limit": "1Gi"
-                        }
-                    }
-                }
+                "config": {"resources": resources}
             }
         }
     }
