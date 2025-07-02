@@ -12,6 +12,31 @@ import Intro from './components/intro/intro'
 import Downloadbox from './components/Downloadbox/downloadbox';
 import Service from './components/service/service';
 import Footer from './components/Footer/footer';
+import Separator from './components/separator/separator';
+
+import dummy from './assets/dummy.png'
+
+import jupyter from './assets/jupyter.png'; 
+import minio from './assets/minio.webp'; 
+import keycloak from './assets/keycloak.png'; 
+import superset from './assets/apache-superset.webp'; 
+import airflow from './assets/airflow.png'; 
+
+import azure from './assets/azure.png'; 
+import kubernetes from './assets/kubernetes.png'; 
+
+const osServices = [
+    { img: jupyter, headline: "Jupyterhub", text: "Die Entwicklungsumgebung auf der Cloud mit Versionierung über GitHub.", path: "https://httpd.apache.org" },
+    { img: minio, headline: "MinIO", text: "Speicherort für Roh- und verarbeiteter Daten. Zielort der Medaillon-Architektur.", path: "https://httpd.apache.org" },
+    { img: keycloak, headline: "Keycloak", text: "Zentrales Authentifizierungstool, zur Verwaltung von Zugangsdaten.", path: "https://httpd.apache.org" },
+    { img: superset, headline: "Superset", text: "BI-Tool zur Visualisierung der verarbeiteten Daten in Form von Dashboards.", path: "https://httpd.apache.org" },
+    { img: airflow, headline: "Airflow", text: "Orchestrierungstool für die gesamten Workflows der Platform.", path: "https://httpd.apache.org" },
+];
+
+const infrastructure = [
+    { img: azure, headline: "Azure", text: "Die Cloud-Infrastruktur auf der die Datenplattform läuft.", path: "https://httpd.apache.org" },
+    { img: kubernetes, headline: "Kubernetes", text: "Open-Source System zur Verwaltung von Container Anwendungen.", path: "https://httpd.apache.org" }
+];
 
 const sectionsForNav = [
   { id: 'einfuehrung', title: 'Einführung' },
@@ -69,7 +94,17 @@ function App() {
       </section>
 
       <section id='services'>
-        <Service />
+        <Service
+          servicesData={infrastructure}
+          sectionTitle="Unsere Infrastruktur"
+        />
+
+        <Separator imageUrl={dummy} />
+
+        <Service
+          servicesData={osServices}
+          sectionTitle="Unsere Services"
+        />
       </section>
 
       <section id='nuetzliches'>

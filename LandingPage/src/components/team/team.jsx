@@ -7,6 +7,10 @@ import dummy from '../../assets/dummy.png';
 import simon from '../../assets/team/simon.jpg';
 import sven from '../../assets/team/sven.jpg';
 import daniel from '../../assets/team/daniel.png';
+import jerome from '../../assets/team/jerome.jpeg';
+import lars from '../../assets/team/lars.jpeg';
+import leart from '../../assets/team/leart.jpeg';
+import nico from '../../assets/team/nico.jpeg';
 
 import styles from './team.module.css';
 
@@ -20,15 +24,15 @@ const teamsData = [
     },
     {
         members: [
-            { headline: "Developer", name: "Nico Eberhardt", img: dummy },
+            { headline: "Developer", name: "Nico Eberhardt", img: nico },
             { headline: "Developer", name: "Sven Plasch", img: sven },
-            { headline: "Developer", name: "Leart Gaschi", img: dummy },
+            { headline: "Developer", name: "Leart Gaschi", img: leart },
         ]
     },
     {
         members: [
-            { headline: "Dashboard", name: "Lars Butschle", img: dummy },
-            { headline: "Dokumentation", name: "Jerome Durmus", img: dummy },
+            { headline: "Dashboard", name: "Lars Butschle", img: lars },
+            { headline: "Dokumentation", name: "Jerome Durmus", img: jerome },
             { headline: "Projektmanagm.", name: "Daniel Kixmüller", img: daniel },
         ]
     }
