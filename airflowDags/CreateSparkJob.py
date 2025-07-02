@@ -45,7 +45,8 @@ class SparkKubernetesOperator(BaseOperator):
 
     def execute(self, context):
         hook = KubernetesHook()
-        api: CustomObjectsApi = hook.get_conn()
+        api_client = hook.get_conn()
+        api = CustomObjectsApi(api_client)
         body = {
                 "apiVersion": "spark.stackable.tech/v1alpha1",
                 "kind": "SparkApplication",
