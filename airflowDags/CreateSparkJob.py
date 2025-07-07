@@ -107,7 +107,7 @@ class SparkKubernetesOperator(BaseOperator):
         log.info(f"Waiting for SparkApplication {self.name} to complete...")
 
         pod_prefix = f"{self.name}-"
-        timeout = 120  # max 10 Minuten warten
+        timeout = 120 
         poll_interval = 10
         elapsed = 0
 
@@ -118,7 +118,6 @@ class SparkKubernetesOperator(BaseOperator):
             time.sleep(poll_interval)
             elapsed += poll_interval
 
-            # Driver-Pod suchen und Status prüfen
             pods = core_api.list_namespaced_pod(namespace=self.namespace)
             driver_pods = [p for p in pods.items if p.metadata.name.startswith(pod_prefix) and "-driver" in p.metadata.name]
 
@@ -128,7 +127,6 @@ class SparkKubernetesOperator(BaseOperator):
                 log.info(f"Driver pod {driver_pod.metadata.name} is in phase: {pod_phase}")
 
                 if pod_phase == "Failed":
-                    # Optional: Logs holen für bessere Fehlersuche
                     logs = core_api.read_namespaced_pod_log(driver_pod.metadata.name, namespace=self.namespace)
                     log.error(f"Driver pod logs:\n{logs}")
                     raise Exception(f"Driver pod {driver_pod.metadata.name} failed. See logs above.")
