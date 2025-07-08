@@ -1,12 +1,21 @@
 FROM python:3.10
 
-RUN apt-get update && apt-get install -y git
+# Install system packages for building Python packages like numpy
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /jobs
 
-COPY scripts/*.py /jobs/
+# Copy requirements before installing
+COPY SparkRepoRequirements.txt .
 
-# Install Python dependencies if you have requirements.txt
+# Install Python dependencies
 RUN pip install --no-cache-dir -r SparkRepoRequirements.txt
 
+# Copy your Spark/Python scripts
+COPY scripts/*.py /jobs/
+
+# Keeps the container alive for debugging or cluster exec
 CMD ["sleep", "infinity"]
