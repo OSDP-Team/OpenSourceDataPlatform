@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /jobs
 
 # Copy requirements before installing
-COPY SparkRepoRequirements.txt .
+COPY dockerfiles/SparkRepoRequirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r SparkRepoRequirements.txt
