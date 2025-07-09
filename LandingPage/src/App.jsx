@@ -9,7 +9,7 @@ import ScrollButton from './components/scrollButton/scrollButton'
 import Header from './components/header/header';
 import Team from './components/team/team';
 import Intro from './components/intro/intro'
-import Downloadbox from './components/Downloadbox/downloadbox';
+import Downloadbox from './components/downloadbox/downloadbox';
 import Service from './components/service/service';
 import Footer from './components/Footer/footer';
 import Separator from './components/separator/separator';
