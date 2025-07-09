@@ -93,7 +93,11 @@ def main():
 
     faktentabelle_df = silver_df \
         .join(dim_modul_df, silver_df.modul == dim_modul_df.modul_name) \
-        .join(dim_zeit_df, silver_df.valuedate == dim_zeit_df.valuedate) \
+        .join(
+            dim_zeit_df,
+            (silver_df.valuedate == dim_zeit_df.valuedate) & (silver_df.intervall == dim_zeit_df.intervall),
+            "inner" 
+        ) \
         .join(dim_messung_df, silver_df.messung_typ == dim_messung_df.messung_bezeichnung) \
         .select(
             col("zeit_Id").alias("FK_zeit_Id"),
