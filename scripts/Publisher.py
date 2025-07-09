@@ -14,7 +14,7 @@ BRONZE_BUCKET = "bronze"
 MODULES_TO_SIMULATE = [
     {"name": "Strom_GOM_M1", "interval": "15_min"},
     {"name": "Strom_GOM_M2", "interval": "15_min"},
-    {"name": "Nutzungsgrad_GOM_M3", "interval": "täglich"},
+    {"name": "Nutzungsgrad_GOM_M3", "interval": "Täglich"},
     {"name": "Waerme_GOM_M2", "interval": "15_min"},
 ]
 
@@ -88,14 +88,14 @@ if __name__ == "__main__":
         if module["interval"] == "15_min":
             timestamp_to_generate = now - timedelta(minutes=15)
             # === ANPASSUNG 2: Modulname wird hier übergeben ===
-            data = generate_csv_data(module['name'], timestamp_to_generate, 1, 15)
+            data = generate_csv_data(module['name'], timestamp_to_generate, 96, 15)
             print(f"  -> Generiere 15-Minuten-Daten für Modul '{module['name']}'...")
             
-        elif module["interval"] == "täglich":
+        elif module["interval"] == "Täglich":
             yesterday = now - timedelta(days=1)
             start_of_yesterday = datetime(yesterday.year, yesterday.month, yesterday.day)
             # === ANPASSUNG 3: Modulname wird auch hier übergeben ===
-            data = generate_csv_data(module['name'], start_of_yesterday, 96, 15)
+            data = generate_csv_data(module['name'], start_of_yesterday, 96, 1440)
             print(f"  -> Generiere Tages-Daten für Modul '{module['name']}' für den {start_of_yesterday.date()}...")
 
         if data:
