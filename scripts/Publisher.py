@@ -25,11 +25,11 @@ def generate_spark_dataframe(spark, start_time: datetime, num_rows: int, modul: 
     current_time = start_time
 
     for _ in range(num_rows):
-        min_val = round(np.random.normal(0.151, 0.0005), 6)
-        max_val = round(min_val + np.random.uniform(0.0002, 0.001), 6)
+        min_val = round(random.gauss(0.151, 0.0005), 6)
+        max_val = round(min_val + random.uniform(0.0002, 0.001), 6)
         avg_val = round((min_val + max_val) / 2, 6)
         sum_val = round(avg_val, 6)
-        pval = round(np.random.normal(0.605, 0.002), 6)
+        pval = round(random.gauss(0.605, 0.002), 6)
 
         row = (
             50, #STATE_VAL
@@ -122,5 +122,5 @@ def main():
         spark.stop()
 
 if __name__ == "__main__":
-    import numpy as np
+    import random
     main()
