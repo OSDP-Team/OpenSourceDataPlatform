@@ -1,126 +1,125 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import lit
-from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
-from datetime import datetime, timedelta
+# data_generator.py (Angepasst für die einmalige Ausführung durch einen Orchestrator)
 import os
-import re
+import io
+import random
+from datetime import datetime, timedelta
+from minio import Minio
 
-def extract_metadata_from_filename(filename: str):
-    """
-    Extrahiert 'modul' und 'intervall' aus einem Dateinamen.
-    Beispiel: a_Strom_GOM_M2_15min_kWh_20220101000000_20230101000000
-    """
-    match = re.match(r"a_([\w]+(?:_[\w]+)*)_(\d+min)_", filename)
-    if not match:
-        raise ValueError(f"Dateiname {filename} ist ungültig oder entspricht nicht dem erwarteten Format.")
-    modul = match.group(1)
-    intervall = match.group(2)
-    return modul, intervall
+# --- KONFIGURATION ---
+MINIO_ENDPOINT = "localhost:9000"  
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
+BRONZE_BUCKET = "bronze"
 
-def generate_spark_dataframe(spark, start_time: datetime, num_rows: int, modul: str, intervall: str):
-    """
-    Erzeugt ein PySpark DataFrame mit simulierten Messwerten.
-    """
-    rows = []
-    current_time = start_time
+MODULES_TO_SIMULATE = [
+    {"name": "Strom_GOM_M1", "interval": "15_min"},
+    {"name": "Strom_GOM_M2", "interval": "15_min"},
+    {"name": "Nutzungsgrad_M3", "interval": "täglich"},
+    {"name": "Waerme_GOM_M2", "interval": "15_min"},
+]
 
+# --- HILFSFUNKTIONEN ---
+
+def generate_csv_data(start_timestamp, num_rows, interval_minutes):
+    """Erzeugt CSV-Daten als String im Arbeitsspeicher."""
+    output = io.StringIO()
+    # CSV-Header schreiben
+    header = "COMP_LEVEL;VALUEDATE;MESS_ID;VALUE;STATE_VAL;STATE_ACQ;STATE_COR;ENTRYDATE;MIN;MINDATE;MAX;MAXDATE;AVG;SUM;PVALUE;OFFSET;VERSION;TEXT\n"
+    output.write(header)
+
+    current_timestamp = start_timestamp
     for _ in range(num_rows):
-        min_val = round(random.gauss(0.151, 0.0005), 6)
-        max_val = round(min_val + random.uniform(0.0002, 0.001), 6)
-        avg_val = round((min_val + max_val) / 2, 6)
-        sum_val = round(avg_val, 6)
-        pval = round(random.gauss(0.605, 0.002), 6)
+        # Zeitstempel für die aktuelle Zeile
+        valuedate_str = current_timestamp.strftime('%d.%m.%Y %H:%M:%S')
+        
+        # Realistische, zufällige Messwerte generieren
+        base_value = random.uniform(50.0, 200.0)
+        if "Nutzungsgrad" in start_timestamp.strftime("%Y-%m-%d"): # Simple way to check module type for value generation
+            base_value = random.uniform(0.85, 0.99)
 
-        row = (
-            50, #STATE_VAL
-            0,  #STATE_ACQ
-            0,  #STATE_COR
-            current_time.strftime("%d.%m.%Y %H:%M"), #ENTRYDATE
-            min_val, #MIN
-            (current_time - timedelta(minutes=15)).strftime("%d.%m.%Y %H:%M"), #MINDATE
-            max_val, #MAX
-            (current_time - timedelta(minutes=15)).strftime("%d.%m.%Y %H:%M"), #MAXDATE
-            avg_val, #AVG
-            sum_val, #SUM
-            pval, #PVALUE
-            1, #OFFSET
-            "01.01.0001 00:00:00", #VERSION
-            "", #TEXT
-            modul, #modul
-            intervall, #intervall
-            1, #MESS_ID
-            0  #COMP_LEVEL
-        )
-        rows.append(row)
-        current_time += timedelta(minutes=15)
+        min_val = base_value * random.uniform(0.9, 0.98)
+        max_val = base_value * random.uniform(1.02, 1.1)
+        avg_val = (min_val + max_val) / 2
+        sum_val = avg_val * 4 # Annahme für 15-Min-Summen
 
-    schema = StructType([
-        StructField("STATE_VAL", IntegerType()),
-        StructField("STATE_ACQ", IntegerType()),
-        StructField("STATE_COR", IntegerType()),
-        StructField("ENTRYDATE", StringType()),
-        StructField("MIN", DoubleType()),
-        StructField("MINDATE", StringType()),
-        StructField("MAX", DoubleType()),
-        StructField("MAXDATE", StringType()),
-        StructField("AVG", DoubleType()),
-        StructField("SUM", DoubleType()),
-        StructField("PVALUE", DoubleType()),
-        StructField("OFFSET", IntegerType()),
-        StructField("VERSION", StringType()),
-        StructField("TEXT", StringType()),
-        StructField("modul", StringType()),
-        StructField("intervall", StringType()),
-        StructField("MESS_ID", IntegerType()),
-        StructField("COMP_LEVEL", IntegerType()),
-    ])
+        # Eine CSV-Zeile formatieren
+        row = [
+            "2100", valuedate_str, str(random.randint(180000, 190000)),
+            f"{base_value:.6f}", "50", "0", "0",
+            datetime.now().strftime('%d.%m.%Y %H:%M:%S'),
+            f"{min_val:.6f}", valuedate_str, f"{max_val:.6f}", valuedate_str,
+            f"{avg_val:.6f}", f"{sum_val:.6f}", f"{base_value * 4:.6f}",
+            "1", "01.01.0001 00:00:00", ""
+        ]
+        output.write(";".join(row) + "\n")
+        
+        current_timestamp += timedelta(minutes=interval_minutes)
+    
+    # Den Inhalt als Bytes zurückgeben, bereit für den Upload
+    return output.getvalue().encode('utf-8')
 
-    return spark.createDataFrame(rows, schema)
 
-def main():
-    # Beispiel-Dateiname (realistisch in der Pipeline)
-    filenames = ["a_Strom_GOM_M1_15min_kWh_20220101000000_20230101000000","a_Strom_GOM_M2_15min_kWh_20220101000000_20230101000000", "a_Strom_GOM_M4_15min_kWh_20220101000000_20230101000000"]
-  
-
-    minio_user = os.getenv("MINIO_ACCESS_KEY")
-    minio_pwd = os.getenv("MINIO_SECRET_KEY")
-    if not minio_user or not minio_pwd:
-     raise ValueError("MINIO_ACCESS_KEY oder MINIO_SECRET_KEY nicht gesetzt")
-
-    spark = (
-        SparkSession.builder
-         .appName("simulate-publisher-spark")
-         .master("local[*]")
-         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.688")
-         .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
-         .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000")
-         .config("spark.hadoop.fs.s3a.path.style.access", "true")
-         .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
-         .config("spark.hadoop.fs.s3a.access.key", minio_user)
-         .config("spark.hadoop.fs.s3a.secret.key", minio_pwd)
-         .getOrCreate()
-        )
-
-    start_time = datetime.strptime("01.01.2022 00:00", "%d.%m.%Y %H:%M")
-    for filename in filenames:
-        modul, intervall = extract_metadata_from_filename(filename)
-        try:
-            df = generate_spark_dataframe(spark, start_time, num_rows=96, modul=modul, intervall=intervall)
-
-            output_path = f"s3a://producer/{filename}.csv"
-
-            df.write \
-                .mode("overwrite") \
-                .option("header", True) \
-                .option("sep", ";") \
-                .csv(output_path)
-
-            print(f"Synthetische Daten erfolgreich geschrieben nach: {output_path}")
-        except Exception as e:
-            print(f"Ein Fehler ist beim Schreiben der Daten aufgetreten: {e}")
-
-        spark.stop()
+# --- HAUPTSKRIPT ---
 
 if __name__ == "__main__":
-    import random
-    main()
+    print("Starte Daten-Generator (einmalige Ausführung)...")
+    
+    # MinIO Client initialisieren
+    try:
+        minio_client = Minio(
+            MINIO_ENDPOINT,
+            access_key=MINIO_ACCESS_KEY,
+            secret_key=MINIO_SECRET_KEY,
+            secure=False
+        )
+        found = minio_client.bucket_exists(BRONZE_BUCKET)
+        if not found:
+            minio_client.make_bucket(BRONZE_BUCKET)
+            print(f"Bucket '{BRONZE_BUCKET}' wurde erstellt.")
+    except Exception as e:
+        print(f"Fehler bei der Verbindung zu MinIO: {e}")
+        exit()
+
+    now = datetime.now()
+    print(f"\n[{now.strftime('%Y-%m-%d %H:%M:%S')}] Generiere eine neue Daten-Charge...")
+
+    for module in MODULES_TO_SIMULATE:
+        # Eindeutigen Dateinamen erstellen
+        filename = f"messwerte_{now.strftime('%Y%m%d_%H%M%S')}_{module['name']}.csv"
+        
+        # Korrekten Objektpfad für die Partitionierung zusammenbauen
+        object_name = f"modul={module['name']}/intervall={module['interval']}/{filename}"
+        
+        data = None
+        # Logik, um zu entscheiden, welche Daten generiert werden sollen
+        if module["interval"] == "15_min":
+            # Generiere Daten für das letzte abgeschlossene 15-Minuten-Intervall
+            timestamp_to_generate = now - timedelta(minutes=15)
+            data = generate_csv_data(timestamp_to_generate, 1, 15)
+            print(f"  -> Generiere 15-Minuten-Daten für Modul '{module['name']}'...")
+            
+        elif module["interval"] == "täglich":
+            # Generiere Daten für den gesamten gestrigen Tag
+            yesterday = now - timedelta(days=1)
+            start_of_yesterday = datetime(yesterday.year, yesterday.month, yesterday.day)
+            # 96 Intervalle à 15 Minuten = 24 Stunden
+            data = generate_csv_data(start_of_yesterday, 96, 15)
+            print(f"  -> Generiere Tages-Daten für Modul '{module['name']}' für den {start_of_yesterday.date()}...")
+
+        if data:
+            data_stream = io.BytesIO(data)
+            data_len = len(data)
+
+            try:
+                minio_client.put_object(
+                    BRONZE_BUCKET,
+                    object_name,
+                    data_stream,
+                    data_len,
+                    content_type='application/csv'
+                )
+                print(f"  -> SUCCESS: '{filename}' erfolgreich hochgeladen.")
+            except Exception as e:
+                print(f"  -> ERROR: Fehler beim Upload für Modul '{module['name']}': {e}")
+    
+    print("\nDaten-Generierung abgeschlossen. Skript wird beendet.")
