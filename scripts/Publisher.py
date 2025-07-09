@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from minio import Minio
 
 # --- KONFIGURATION ---
-MINIO_ENDPOINT = "localhost:9000"  
+MINIO_ENDPOINT = "minio:9000"
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
 BRONZE_BUCKET = "bronze"
