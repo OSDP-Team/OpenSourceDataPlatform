@@ -8,6 +8,7 @@
 .sectionHeadline {
     text-align: center;
     margin-bottom: 150px;
+    font-size: 40px;
 }
 
 .cardContainer {
@@ -21,4 +22,10 @@
 .cardWrapper {
     flex-basis: 30%; 
     min-width: 320px; 
+}
+
+@media (min-width: 499px) {
+    .sectionHeadline {
+        font-size: 50px;
+    }
 }

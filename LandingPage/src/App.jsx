@@ -11,7 +11,7 @@ import Team from './components/team/team';
 import Intro from './components/intro/intro'
 import Downloadbox from './components/downloadbox/downloadbox';
 import Service from './components/service/service';
-import Footer from './components/Footer/footer';
+import Footer from './components/footer/footer';
 import Separator from './components/separator/separator';
 
 import dummy from './assets/dummy.png'
@@ -42,6 +42,7 @@ const sectionsForNav = [
   { id: 'einfuehrung', title: 'Einführung' },
   { id: 'team', title: 'Team' },
   { id: 'voraussetzungen', title: 'Voraussetzungen' },
+  { id: 'infrastruktur', title: 'Infrastruktur' },
   { id: 'services', title: 'Services' },
   { id: 'nuetzliches', title: 'Nützliches' },
 ];
@@ -93,14 +94,16 @@ function App() {
         />
       </section>
 
-      <section id='services'>
+      <section id='infrastruktur'>
         <Service
           servicesData={infrastructure}
           sectionTitle="Unsere Infrastruktur"
         />
+      </section>
 
-        <Separator imageUrl={dummy} />
+      <Separator imageUrl={dummy} />
 
+      <section id='services'>
         <Service
           servicesData={osServices}
           sectionTitle="Unsere Services"

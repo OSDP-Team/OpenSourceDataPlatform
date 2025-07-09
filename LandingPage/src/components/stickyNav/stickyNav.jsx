@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from './StickyNav.module.css';
+import styles from './stickyNav.module.css';
 
 const menuVariants = {
     closed: { x: '-100%', transition: { duration: 0.4, ease: 'easeInOut' } },

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, useScroll, useTransform } from 'framer-motion';
 import pic from '../../assets/header.jpg'
-import styles from './Header.module.css'; 
+import styles from './header.module.css'; 
 
 function Header({ headline, subheadline }) {
   const ref = useRef(null);
