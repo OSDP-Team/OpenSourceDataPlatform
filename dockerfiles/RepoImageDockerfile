@@ -7,6 +7,6 @@ WORKDIR /jobs
 COPY scripts/*.py /jobs/
 
 # Install Python dependencies if you have requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+#RUN pip install --no-cache-dir -r requirements.txt
 
 CMD ["sleep", "infinity"]
