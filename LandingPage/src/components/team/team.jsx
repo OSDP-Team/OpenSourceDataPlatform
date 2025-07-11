@@ -26,7 +26,7 @@ const teamsData = [
         members: [
             { headline: "Developer", name: "Nico Eberhardt", img: nico },
             { headline: "Developer", name: "Sven Plasch", img: sven },
-            { headline: "Developer", name: "Leart Gaschi", img: leart },
+            { headline: "Developer", name: "Leart Gashi", img: leart },
         ]
     },
     {
