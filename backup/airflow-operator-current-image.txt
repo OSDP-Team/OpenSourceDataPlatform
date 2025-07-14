@@ -1,0 +1,1 @@
+oci.stackable.tech/sdp/airflow-operator:0.0.0-dev
