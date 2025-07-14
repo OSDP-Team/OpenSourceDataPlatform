@@ -13,7 +13,7 @@ BRONZE_BUCKET = "bronze"
 MODULES_TO_SIMULATE = [
     {"name": "Strom_GOM_M1", "interval": "15_min"},
     {"name": "Strom_GOM_M2", "interval": "15_min"},
-    {"name": "Nutzungsgrad_GOM_M3", "interval": "Täglich"},
+    {"name": "Nutzungsgrad_GOM_M3_el", "interval": "Täglich"},
     {"name": "Waerme_GOM_M2", "interval": "15_min"},
 ]
 
