@@ -79,7 +79,7 @@ def main():
         .withColumn("stunde", hour(col("valuedate"))) \
         .withColumn("minute", minute(col("valuedate"))) 
     
-    dim_zeit_df = dim_zeit_df.select("zeit_Id", "datum", "jahr", "monat", "tag", "stunde", "minute", "intervall", "valuedate")
+    dim_zeit_df = dim_zeit_df.select("zeit_Id", "timestamp", "datum", "jahr", "monat", "tag", "stunde", "minute", "intervall", "valuedate")
 
     print("Erstelle DIM Messung...")
     dim_messung_df = silver_df.select(col("messung_typ").alias("messung_bezeichnung")).distinct() \
