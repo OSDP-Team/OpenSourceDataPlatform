@@ -71,6 +71,7 @@ def main():
     print("Erstelle DIM Zeit...")
     dim_zeit_df = silver_df.select("valuedate", "intervall").distinct() \
         .withColumn("zeit_Id", monotonically_increasing_id()) \
+        .withColumn("timestamp", col("valuedate")) \
         .withColumn("datum", to_date(col("valuedate"))) \
         .withColumn("jahr", year(col("valuedate"))) \
         .withColumn("monat", month(col("valuedate"))) \
