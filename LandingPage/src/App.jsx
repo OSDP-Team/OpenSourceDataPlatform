@@ -26,16 +26,16 @@ import azure from './assets/azure.png';
 import kubernetes from './assets/kubernetes.png'; 
 
 const osServices = [
-    { img: jupyter, headline: "Jupyterhub", text: "Die Entwicklungsumgebung auf der Cloud mit Versionierung über GitHub.", path: "10.0.194.12" },
-    { img: minio, headline: "MinIO", text: "Speicherort für Roh- und verarbeiteter Daten. Zielort der Medaillon-Architektur.", path: "https://httpd.apache.org" },
-    { img: keycloak, headline: "Keycloak", text: "Zentrales Authentifizierungstool, zur Verwaltung von Zugangsdaten.", path: " https://10.0.234.7:8443/" },
-    { img: superset, headline: "Superset", text: "BI-Tool zur Visualisierung der verarbeiteten Daten in Form von Dashboards.", path: "http://10.0.176.231:8088/" },
-    { img: airflow, headline: "Airflow", text: "Orchestrierungstool für die gesamten Workflows der Platform.", path: "https://httpd.apache.org" },
+    { img: jupyter, headline: "Jupyterhub", text: "Die Entwicklungsumgebung auf der Cloud mit Versionierung über GitHub.", path: "10.0.194.12", buttonName: "Zum Service" },
+    { img: minio, headline: "MinIO", text: "Speicherort für Roh- und verarbeiteter Daten. Zielort der Medaillon-Architektur.", path: "http://localhost:9001/",buttonName: "Zum Service" },
+    { img: keycloak, headline: "Keycloak", text: "Zentrales Authentifizierungstool, zur Verwaltung von Zugangsdaten.", path: "https://10.0.234.7:8443/", buttonName: "Zum Service" },
+    { img: superset, headline: "Superset", text: "BI-Tool zur Visualisierung der verarbeiteten Daten in Form von Dashboards.", path: "http://10.0.176.231:8088/", buttonName: "Zum Service" },
+    { img: airflow, headline: "Airflow", text: "Orchestrierungstool für die gesamten Workflows der Platform.", path: "http://localhost:8080", buttonName: "Zum Service" },
 ];
 
 const infrastructure = [
-    { img: azure, headline: "Azure", text: "Die Cloud-Infrastruktur auf der die Datenplattform läuft.", path: "https://httpd.apache.org" },
-    { img: kubernetes, headline: "Kubernetes", text: "Open-Source System zur Verwaltung von Container Anwendungen.", path: "https://httpd.apache.org" }
+    { img: azure, headline: "Azure", text: "Die Cloud-Infrastruktur auf der die Datenplattform läuft.", path: "https://azure.microsoft.com/de-de", buttonName: "Zu Azure" },
+    { img: kubernetes, headline: "Kubernetes", text: "Open-Source System zur Verwaltung von Container Anwendungen.", path: "https://kubernetes.io", buttonName: "Zu Kubernetes" }
 ];
 
 const sectionsForNav = [
@@ -64,7 +64,7 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <main>
       <StickyNav 
         sections={sectionsForNav}
       />
@@ -115,7 +115,7 @@ function App() {
       </section>
 
       <ScrollButton />
-    </div>
+    </main>
   )
 }
 

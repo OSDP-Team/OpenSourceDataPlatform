@@ -1,6 +1,6 @@
 import styles from './serviceCard.module.css';
 
-const ServiceCard = ({ img, headline, text, path }) => {
+const ServiceCard = ({ img, headline, text, path, buttonName }) => {
     return (
         <div className={styles.wrapper}>
             <img src={img} alt="icon" />
@@ -12,7 +12,7 @@ const ServiceCard = ({ img, headline, text, path }) => {
                 rel="noopener noreferrer"
                 className={styles.button}
             >
-                Zum Service
+                {buttonName}
             </a>
         </div>
     )

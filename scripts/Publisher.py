@@ -5,7 +5,6 @@ import random
 from datetime import datetime, timedelta
 from minio import Minio
 
-# --- KONFIGURATION ---
 MINIO_ENDPOINT = "minio:9000"
 MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
@@ -18,9 +17,6 @@ MODULES_TO_SIMULATE = [
     {"name": "Waerme_GOM_M2", "interval": "15_min"},
 ]
 
-# --- HILFSFUNKTIONEN ---
-
-# === ANPASSUNG 1: Funktion akzeptiert jetzt 'module_name' ===
 def generate_csv_data(module_name, start_timestamp, num_rows, interval_minutes):
     """Erzeugt CSV-Daten als String im Arbeitsspeicher."""
     output = io.StringIO()
@@ -31,11 +27,9 @@ def generate_csv_data(module_name, start_timestamp, num_rows, interval_minutes):
     for _ in range(num_rows):
         valuedate_str = current_timestamp.strftime('%d.%m.%Y %H:%M:%S')
         
-        # Realistische, zufällige Messwerte generieren
         base_value = random.uniform(50.0, 200.0)
-        # Korrekte Logik, um den Wert für Nutzungsgrad anzupassen
         if "Nutzungsgrad" in module_name:
-            base_value = random.uniform(0.0, 1.0) # Nutzungsgrad zwischen 0 und 1
+            base_value = random.uniform(0.0, 1.0) 
 
         min_val = base_value * random.uniform(0.9, 0.98)
         max_val = base_value * random.uniform(1.02, 1.1)
@@ -55,9 +49,6 @@ def generate_csv_data(module_name, start_timestamp, num_rows, interval_minutes):
         current_timestamp += timedelta(minutes=interval_minutes)
     
     return output.getvalue().encode('utf-8')
-
-
-# --- HAUPTSKRIPT ---
 
 if __name__ == "__main__":
     print("Starte Daten-Generator (einmalige Ausführung)...")
@@ -87,14 +78,12 @@ if __name__ == "__main__":
         data = None
         if module["interval"] == "15_min":
             timestamp_to_generate = now - timedelta(minutes=15)
-            # === ANPASSUNG 2: Modulname wird hier übergeben ===
             data = generate_csv_data(module['name'], timestamp_to_generate, 96, 15)
             print(f"  -> Generiere 15-Minuten-Daten für Modul '{module['name']}'...")
             
         elif module["interval"] == "Täglich":
             yesterday = now - timedelta(days=1)
             start_of_yesterday = datetime(yesterday.year, yesterday.month, yesterday.day)
-            # === ANPASSUNG 3: Modulname wird auch hier übergeben ===
             data = generate_csv_data(module['name'], start_of_yesterday, 96, 1440)
             print(f"  -> Generiere Tages-Daten für Modul '{module['name']}' für den {start_of_yesterday.date()}...")
 

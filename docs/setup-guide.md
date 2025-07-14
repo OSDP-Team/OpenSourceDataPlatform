@@ -1,16 +1,19 @@
 ## Links
 
 ### Jupyterhub
-10.0.194.12 
+10.0.194.12
 
 ### MinIO
-10.0.193.18:9001 
+http://localhost:9001/
 
 ### Keycloak
-https://10.0.234.7:8443 
+https://10.0.234.7:8443/
 
 ### Superset
-10.0.176.231:8088
+http://10.0.176.231:8088/
+
+### Airflow
+http://localhost:8080
 
 ## Authentifizierung
 

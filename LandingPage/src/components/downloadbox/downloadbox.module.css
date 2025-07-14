@@ -1,9 +1,9 @@
 .wrapper {
     min-height: 800px;
     max-width: 1440px;
-    padding: 0 55px;
+    padding: 0 30px;
     display: flex;
-    margin: 0 100px auto;
+    margin: 0 auto;
     align-items: center;
 }
 
@@ -102,16 +102,14 @@
     box-shadow: 0 4px 12px rgba(66, 227, 245, 0.4);
 }
 
+@media (min-width: 400px) {
+    .wrapper {
+        padding: 0 55px;
+    }
+}
+
 @media (min-width: 786px) {
     .sectionWrapper {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        align-items: center;
-        width: 100%;
-
         padding-bottom: 0;
-    
-        gap: 80px;
     }
 }

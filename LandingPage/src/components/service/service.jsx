@@ -47,6 +47,7 @@ const Service = ({ servicesData, sectionTitle }) => {
                             headline={service.headline}
                             text={service.text}
                             path={service.path}
+                            buttonName={service.buttonName}
                         />
                     </motion.div>
                 ))}

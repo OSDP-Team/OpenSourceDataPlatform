@@ -31,7 +31,7 @@ const Downloadbox = ({ headline, text }) => {
         offset: ['start end', 'end start']
     });
     
-    const isDesktop = useMediaQuery('(min-width: 1090px)');
+    const isDesktop = useMediaQuery('(min-width: 1288px)');
     const range = isDesktop ? ['-25%', '30%'] : ['25%', '-10%'];
 
     const y = useTransform(scrollYProgress, [0, 1], range);
