@@ -115,7 +115,7 @@ def main():
     print("Speichere Gold-Tabellen...")
     try:
         dim_modul_df.write.mode("overwrite").parquet(os.path.join(gold_data_path, "dim_modul"))
-        dim_zeit_df.select("zeit_Id", "datum", "jahr", "monat", "tag", "stunde", "minute", "intervall").write.mode("overwrite").parquet(os.path.join(gold_data_path, "dim_zeit"))
+        dim_zeit_df.select("zeit_Id", "timestamp", "datum", "jahr", "monat", "tag", "stunde", "minute", "intervall").write.mode("overwrite").parquet(os.path.join(gold_data_path, "dim_zeit"))
         dim_messung_df.write.mode("overwrite").parquet(os.path.join(gold_data_path, "dim_messung"))
         faktentabelle_df.write.mode("overwrite").parquet(os.path.join(gold_data_path, "faktentabelle"))
         print("Gold-Schicht erfolgreich erstellt.")
