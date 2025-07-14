@@ -1,0 +1,428 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  creationTimestamp: "2025-06-15T00:08:42Z"
+  generation: 39
+  labels:
+    app.kubernetes.io/component: scheduler
+    app.kubernetes.io/instance: airflow
+    app.kubernetes.io/managed-by: airflow.stackable.tech_airflowcluster
+    app.kubernetes.io/name: airflow
+    app.kubernetes.io/role-group: default
+    app.kubernetes.io/version: 2.10.4-stackable0.0.0-dev
+    restarter.stackable.tech/enabled: "true"
+    stackable.tech/vendor: Stackable
+  name: airflow-scheduler-default
+  namespace: default
+  ownerReferences:
+  - apiVersion: airflow.stackable.tech/v1alpha1
+    controller: true
+    kind: AirflowCluster
+    name: airflow
+    uid: 73b55a36-a3c9-4674-a875-a03a640ea87a
+  resourceVersion: "2008835"
+  uid: bc97a423-4771-485a-b4fb-1f57f15997c0
+spec:
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: scheduler
+      app.kubernetes.io/instance: airflow
+      app.kubernetes.io/name: airflow
+      app.kubernetes.io/role-group: default
+  serviceName: airflow-scheduler-default-metrics
+  template:
+    metadata:
+      annotations:
+        configmap.restarter.stackable.tech/airflow-scheduler-default: ffe4b978-4038-43a6-8523-2271aeddf625/1518396
+        kubectl.kubernetes.io/default-container: airflow
+        secret.restarter.stackable.tech/git-credentials: 160167da-7098-4caf-8e6b-99072bfdc113/1189454
+        secret.restarter.stackable.tech/simple-airflow-credentials: f21041ff-07d2-47cf-bf80-18639400c3fe/1189455
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/component: scheduler
+        app.kubernetes.io/instance: airflow
+        app.kubernetes.io/managed-by: airflow.stackable.tech_airflowcluster
+        app.kubernetes.io/name: airflow
+        app.kubernetes.io/role-group: default
+        app.kubernetes.io/version: 2.10.4-stackable0.0.0-dev
+        stackable.tech/vendor: Stackable
+    spec:
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/instance: airflow
+                  app.kubernetes.io/name: airflow
+              topologyKey: kubernetes.io/hostname
+            weight: 20
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: scheduler
+                  app.kubernetes.io/instance: airflow
+                  app.kubernetes.io/name: airflow
+              topologyKey: kubernetes.io/hostname
+            weight: 70
+      containers:
+      - args:
+        - |-
+          mkdir --parents /stackable/log/git-sync-0 && exec > >(tee /stackable/log/git-sync-0/container.stdout.log) 2> >(tee /stackable/log/git-sync-0/container.stderr.log >&2)
+
+          prepare_signal_handlers()
+          {
+              unset term_child_pid
+              unset term_kill_needed
+              trap 'handle_term_signal' TERM
+          }
+
+          handle_term_signal()
+          {
+              if [ "${term_child_pid}" ]; then
+                  kill -TERM "${term_child_pid}" 2>/dev/null
+              else
+                  term_kill_needed="yes"
+              fi
+          }
+
+          wait_for_termination()
+          {
+              set +e
+              term_child_pid=$1
+              if [[ -v term_kill_needed ]]; then
+                  kill -TERM "${term_child_pid}" 2>/dev/null
+              fi
+              wait ${term_child_pid} 2>/dev/null
+              trap - TERM
+              wait ${term_child_pid} 2>/dev/null
+              set -e
+          }
+
+          prepare_signal_handlers
+          /stackable/git-sync --depth=10 --git-config='safe.directory:/tmp/git' --link=current --one-time=false --period=20s --ref=master --repo=https://github.com/OSDP-Team/OpenSourceDataPlatform --rev=HEAD --root=/tmp/git &
+          wait_for_termination $!
+        command:
+        - /bin/bash
+        - -x
+        - -euo
+        - pipefail
+        - -c
+        env:
+        - name: AIRFLOW_CORE_DAGS_FOLDER
+          value: /opt/airflow/dags
+        - name: GITSYNC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: git-credentials
+        - name: GITSYNC_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: git-credentials
+        - name: credentialsSecret
+          value: simple-airflow-credentials
+        image: oci.stackable.tech/sdp/airflow:2.10.4-stackable0.0.0-dev
+        imagePullPolicy: Always
+        name: git-sync-0
+        resources:
+          limits:
+            cpu: 200m
+            memory: 64Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp/git
+          name: content-from-git-0
+        - mountPath: /stackable/log
+          name: log
+      - args:
+        - |-
+          cp -RL /stackable/app/config/webserver_config.py /stackable/airflow/webserver_config.py
+
+          prepare_signal_handlers()
+          {
+              unset term_child_pid
+              unset term_kill_needed
+              trap 'handle_term_signal' TERM
+          }
+
+          handle_term_signal()
+          {
+              if [ "${term_child_pid}" ]; then
+                  kill -TERM "${term_child_pid}" 2>/dev/null
+              else
+                  term_kill_needed="yes"
+              fi
+          }
+
+          wait_for_termination()
+          {
+              set +e
+              term_child_pid=$1
+              if [[ -v term_kill_needed ]]; then
+                  kill -TERM "${term_child_pid}" 2>/dev/null
+              fi
+              wait ${term_child_pid} 2>/dev/null
+              trap - TERM
+              wait ${term_child_pid} 2>/dev/null
+              set -e
+          }
+
+          rm -f /stackable/log/_vector/shutdown
+          airflow db init
+          airflow db upgrade
+          airflow users create --username "$ADMIN_USERNAME" --firstname "$ADMIN_FIRSTNAME" --lastname "$ADMIN_LASTNAME" --email "$ADMIN_EMAIL" --password "$ADMIN_PASSWORD" --role "Admin"
+          prepare_signal_handlers
+          containerdebug --output=/stackable/log/containerdebug-state.json --loop &
+          airflow scheduler &
+          wait_for_termination $!
+          mkdir -p /stackable/log/_vector && touch /stackable/log/_vector/shutdown
+        command:
+        - /bin/bash
+        - -x
+        - -euo
+        - pipefail
+        - -c
+        env:
+        - name: ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              key: adminUser.email
+              name: simple-airflow-credentials
+        - name: ADMIN_FIRSTNAME
+          valueFrom:
+            secretKeyRef:
+              key: adminUser.firstname
+              name: simple-airflow-credentials
+        - name: ADMIN_LASTNAME
+          valueFrom:
+            secretKeyRef:
+              key: adminUser.lastname
+              name: simple-airflow-credentials
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: adminUser.password
+              name: simple-airflow-credentials
+        - name: ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: adminUser.username
+              name: simple-airflow-credentials
+        - name: AIRFLOW_CORE_DAGS_FOLDER
+          value: /opt/airflow/dags
+        - name: AIRFLOW__API__AUTH_BACKENDS
+          value: airflow.api.auth.backend.basic_auth, airflow.api.auth.backend.session
+        - name: AIRFLOW__CELERY__BROKER_URL
+          valueFrom:
+            secretKeyRef:
+              key: connections.celeryBrokerUrl
+              name: simple-airflow-credentials
+        - name: AIRFLOW__CELERY__RESULT_BACKEND
+          valueFrom:
+            secretKeyRef:
+              key: connections.celeryResultBackend
+              name: simple-airflow-credentials
+        - name: AIRFLOW__CORE__DAGS_FOLDER
+          value: /stackable/app/git-0/current/airflowDags
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: CeleryExecutor
+        - name: AIRFLOW__CORE__LOAD_EXAMPLES
+          value: "False"
+        - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+          valueFrom:
+            secretKeyRef:
+              key: connections.sqlalchemyDatabaseUri
+              name: simple-airflow-credentials
+        - name: AIRFLOW__LOGGING__LOGGING_CONFIG_CLASS
+          value: log_config.LOGGING_CONFIG
+        - name: AIRFLOW__METRICS__STATSD_HOST
+          value: 0.0.0.0
+        - name: AIRFLOW__METRICS__STATSD_ON
+          value: "True"
+        - name: AIRFLOW__METRICS__STATSD_PORT
+          value: "9125"
+        - name: AIRFLOW__WEBSERVER__EXPOSE_CONFIG
+          value: "True"
+        - name: AIRFLOW__WEBSERVER__SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: connections.secretKey
+              name: simple-airflow-credentials
+        - name: CONTAINERDEBUG_LOG_DIRECTORY
+          value: /stackable/log/containerdebug
+        - name: PYTHONPATH
+          value: /stackable/app/log_config:/stackable/app/git-0/current/airflowDags
+        - name: credentialsSecret
+          value: simple-airflow-credentials
+        image: oci.stackable.tech/sdp/airflow:2.10.4-stackable0.0.0-dev
+        imagePullPolicy: Always
+        name: airflow
+        resources:
+          limits:
+            cpu: 800m
+            memory: 1536Mi
+          requests:
+            cpu: 200m
+            memory: 384Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /stackable/app/config
+          name: config
+        - mountPath: /stackable/app/log_config
+          name: log-config
+        - mountPath: /stackable/log
+          name: log
+        - mountPath: /stackable/app/git-0
+          name: content-from-git-0
+      - args:
+        - |2-
+
+          prepare_signal_handlers()
+          {
+              unset term_child_pid
+              unset term_kill_needed
+              trap 'handle_term_signal' TERM
+          }
+
+          handle_term_signal()
+          {
+              if [ "${term_child_pid}" ]; then
+                  kill -TERM "${term_child_pid}" 2>/dev/null
+              else
+                  term_kill_needed="yes"
+              fi
+          }
+
+          wait_for_termination()
+          {
+              set +e
+              term_child_pid=$1
+              if [[ -v term_kill_needed ]]; then
+                  kill -TERM "${term_child_pid}" 2>/dev/null
+              fi
+              wait ${term_child_pid} 2>/dev/null
+              trap - TERM
+              wait ${term_child_pid} 2>/dev/null
+              set -e
+          }
+
+          prepare_signal_handlers
+          /stackable/statsd_exporter &
+          wait_for_termination $!
+        command:
+        - /bin/bash
+        - -x
+        - -euo
+        - pipefail
+        - -c
+        image: oci.stackable.tech/sdp/airflow:2.10.4-stackable0.0.0-dev
+        imagePullPolicy: Always
+        name: metrics
+        ports:
+        - containerPort: 9102
+          name: metrics
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 200m
+            memory: 64Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      initContainers:
+      - args:
+        - |-
+          mkdir --parents /stackable/log/git-sync-0-init && exec > >(tee /stackable/log/git-sync-0-init/container.stdout.log) 2> >(tee /stackable/log/git-sync-0-init/container.stderr.log >&2)
+          /stackable/git-sync --depth=10 --git-config='safe.directory:/tmp/git' --link=current --one-time=true --period=20s --ref=master --repo=https://github.com/OSDP-Team/OpenSourceDataPlatform --rev=HEAD --root=/tmp/git
+        command:
+        - /bin/bash
+        - -x
+        - -euo
+        - pipefail
+        - -c
+        env:
+        - name: AIRFLOW_CORE_DAGS_FOLDER
+          value: /opt/airflow/dags
+        - name: GITSYNC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: git-credentials
+        - name: GITSYNC_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: user
+              name: git-credentials
+        - name: credentialsSecret
+          value: simple-airflow-credentials
+        image: oci.stackable.tech/sdp/airflow:2.10.4-stackable0.0.0-dev
+        imagePullPolicy: Always
+        name: git-sync-0-init
+        resources:
+          limits:
+            cpu: 200m
+            memory: 64Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp/git
+          name: content-from-git-0
+        - mountPath: /stackable/log
+          name: log
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1000
+      serviceAccount: airflow-serviceaccount
+      serviceAccountName: airflow-serviceaccount
+      terminationGracePeriodSeconds: 120
+      volumes:
+      - emptyDir: {}
+        name: content-from-git-0
+      - configMap:
+          defaultMode: 420
+          name: airflow-scheduler-default
+        name: config
+      - emptyDir:
+          sizeLimit: 30Mi
+        name: log
+      - configMap:
+          defaultMode: 420
+          name: airflow-scheduler-default
+        name: log-config
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+status:
+  availableReplicas: 1
+  collisionCount: 0
+  currentReplicas: 1
+  currentRevision: airflow-scheduler-default-67b9c487f
+  observedGeneration: 39
+  readyReplicas: 1
+  replicas: 1
+  updateRevision: airflow-scheduler-default-67b9c487f
+  updatedReplicas: 1

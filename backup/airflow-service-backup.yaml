@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2025-06-15T00:08:42Z"
+  labels:
+    app.kubernetes.io/component: webserver
+    app.kubernetes.io/instance: airflow-webserver-default
+    app.kubernetes.io/managed-by: listeners.stackable.tech_listener
+    app.kubernetes.io/name: listener
+    app.kubernetes.io/role-group: default
+    app.kubernetes.io/version: 2.10.4-stackable0.0.0-dev
+    stackable.tech/vendor: Stackable
+  name: airflow-webserver-default
+  namespace: default
+  ownerReferences:
+  - apiVersion: listeners.stackable.tech/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Listener
+    name: airflow-webserver-default
+    uid: 5a427894-1216-4d39-beac-69f9a6dd9e38
+  resourceVersion: "1189477"
+  uid: 22efa043-5e80-4730-9160-fd76dfc44ee3
+spec:
+  clusterIP: 10.0.182.80
+  clusterIPs:
+  - 10.0.182.80
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    listener.stackable.tech/mnt.5a42789412164d39beac69f9a6dd9e38: airflow-webserver-default
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

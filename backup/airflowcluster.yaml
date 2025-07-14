@@ -1,0 +1,248 @@
+apiVersion: airflow.stackable.tech/v1alpha1
+kind: AirflowCluster
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"airflow.stackable.tech/v1alpha1","kind":"AirflowCluster","metadata":{"annotations":{},"name":"airflow","namespace":"default"},"spec":{"celeryExecutors":{"roleGroups":{"default":{"envOverrides":{"AIRFLOW_CELERY_BROKER_URL":"redis://:redis@airflow-redis-master.default.svc.cluster.local:6379/0","AIRFLOW_CELERY_RESULT_BACKEND":"db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local:5432/airflow","AIRFLOW_CORE_DAGS_FOLDER":"/opt/airflow/dags"},"podOverrides":{"spec":{"containers":[{"name":"airflow","resources":{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"300m","memory":"512Mi"}},"volumeMounts":[{"mountPath":"/mnt/volumes/shared-volume","name":"shared-spark-volume"}]}],"securityContext":{"fsGroup":1000},"volumes":[{"name":"shared-spark-volume","persistentVolumeClaim":{"claimName":"shared-spark-pvc"}}]}},"replicas":2}}},"clusterConfig":{"credentialsSecret":"simple-airflow-credentials","dagsGitSync":[{"branch":"master","credentialsSecret":"git-credentials","depth":10,"gitFolder":"airflowDags","gitSyncConf":{"--rev":"HEAD"},"repo":"https://github.com/OSDP-Team/OpenSourceDataPlatform","wait":"20s"}],"exposeConfig":true,"loadExamples":false},"image":{"productVersion":"2.10.4"},"schedulers":{"roleGroups":{"default":{"envOverrides":{"AIRFLOW_CORE_DAGS_FOLDER":"/opt/airflow/dags"},"podOverrides":{"spec":{"containers":[{"name":"airflow","resources":{"limits":{"cpu":"800m","memory":"1.5Gi"},"requests":{"cpu":"200m","memory":"384Mi"}}}]}},"replicas":1}}},"webservers":{"roleGroups":{"default":{"envOverrides":{"AIRFLOW_CORE_DAGS_FOLDER":"/stackable/app/git-0/current/airflowDags","AIRFLOW__WEBSERVER__AUTH_BACKEND":"airflow.www.auth.backend.auth_backend_password","AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX":"true","AIRFLOW__WEBSERVER__SECRET_KEY":"thisISaSECRET_1234"},"podOverrides":{"spec":{"containers":[{"name":"airflow","resources":{"limits":{"cpu":"500m","memory":"1Gi"},"requests":{"cpu":"100m","memory":"256Mi"}}}]}},"replicas":1}}}}}
+  creationTimestamp: "2025-06-15T00:08:42Z"
+  generation: 1
+  name: airflow
+  namespace: default
+  resourceVersion: "1485569"
+  uid: 73b55a36-a3c9-4674-a875-a03a640ea87a
+spec:
+  celeryExecutors:
+    cliOverrides: {}
+    config:
+      affinity:
+        nodeAffinity: null
+        nodeSelector: null
+        podAffinity: null
+        podAntiAffinity: null
+      logging:
+        containers: {}
+        enableVectorAgent: null
+      resources:
+        cpu:
+          max: null
+          min: null
+        memory:
+          limit: null
+          runtimeLimits: {}
+        storage: {}
+    configOverrides: {}
+    envOverrides: {}
+    podOverrides: {}
+    roleConfig:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: null
+    roleGroups:
+      default:
+        cliOverrides: {}
+        config:
+          affinity:
+            nodeAffinity: null
+            nodeSelector: null
+            podAffinity: null
+            podAntiAffinity: null
+          logging:
+            containers: {}
+            enableVectorAgent: null
+          resources:
+            cpu:
+              max: null
+              min: null
+            memory:
+              limit: null
+              runtimeLimits: {}
+            storage: {}
+        configOverrides: {}
+        envOverrides:
+          AIRFLOW_CELERY_BROKER_URL: redis://:redis@airflow-redis-master.default.svc.cluster.local:6379/0
+          AIRFLOW_CELERY_RESULT_BACKEND: db+postgresql://airflow:airflow@airflow-postgresql.default.svc.cluster.local:5432/airflow
+          AIRFLOW_CORE_DAGS_FOLDER: /opt/airflow/dags
+        podOverrides:
+          spec:
+            containers:
+            - name: airflow
+              resources:
+                limits:
+                  cpu: "1"
+                  memory: 2Gi
+                requests:
+                  cpu: 300m
+                  memory: 512Mi
+              volumeMounts:
+              - mountPath: /mnt/volumes/shared-volume
+                name: shared-spark-volume
+            securityContext:
+              fsGroup: 1000
+            volumes:
+            - name: shared-spark-volume
+              persistentVolumeClaim:
+                claimName: shared-spark-pvc
+        replicas: 2
+  clusterConfig:
+    authentication: []
+    credentialsSecret: simple-airflow-credentials
+    dagsGitSync:
+    - branch: master
+      credentialsSecret: git-credentials
+      depth: 10
+      gitFolder: airflowDags
+      gitSyncConf:
+        --rev: HEAD
+      repo: https://github.com/OSDP-Team/OpenSourceDataPlatform
+      wait: 20s
+    exposeConfig: true
+    loadExamples: false
+    volumeMounts: []
+    volumes: []
+  clusterOperation:
+    reconciliationPaused: false
+    stopped: false
+  image:
+    productVersion: 2.10.4
+    pullPolicy: Always
+  schedulers:
+    cliOverrides: {}
+    config:
+      affinity:
+        nodeAffinity: null
+        nodeSelector: null
+        podAffinity: null
+        podAntiAffinity: null
+      logging:
+        containers: {}
+        enableVectorAgent: null
+      resources:
+        cpu:
+          max: null
+          min: null
+        memory:
+          limit: null
+          runtimeLimits: {}
+        storage: {}
+    configOverrides: {}
+    envOverrides: {}
+    podOverrides: {}
+    roleConfig:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: null
+    roleGroups:
+      default:
+        cliOverrides: {}
+        config:
+          affinity:
+            nodeAffinity: null
+            nodeSelector: null
+            podAffinity: null
+            podAntiAffinity: null
+          logging:
+            containers: {}
+            enableVectorAgent: null
+          resources:
+            cpu:
+              max: null
+              min: null
+            memory:
+              limit: null
+              runtimeLimits: {}
+            storage: {}
+        configOverrides: {}
+        envOverrides:
+          AIRFLOW_CORE_DAGS_FOLDER: /opt/airflow/dags
+        podOverrides:
+          spec:
+            containers:
+            - name: airflow
+              resources:
+                limits:
+                  cpu: 800m
+                  memory: 1.5Gi
+                requests:
+                  cpu: 200m
+                  memory: 384Mi
+        replicas: 1
+  webservers:
+    cliOverrides: {}
+    config:
+      affinity:
+        nodeAffinity: null
+        nodeSelector: null
+        podAffinity: null
+        podAntiAffinity: null
+      logging:
+        containers: {}
+        enableVectorAgent: null
+      resources:
+        cpu:
+          max: null
+          min: null
+        memory:
+          limit: null
+          runtimeLimits: {}
+        storage: {}
+    configOverrides: {}
+    envOverrides: {}
+    podOverrides: {}
+    roleConfig:
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: null
+    roleGroups:
+      default:
+        cliOverrides: {}
+        config:
+          affinity:
+            nodeAffinity: null
+            nodeSelector: null
+            podAffinity: null
+            podAntiAffinity: null
+          logging:
+            containers: {}
+            enableVectorAgent: null
+          resources:
+            cpu:
+              max: null
+              min: null
+            memory:
+              limit: null
+              runtimeLimits: {}
+            storage: {}
+        configOverrides: {}
+        envOverrides:
+          AIRFLOW__WEBSERVER__AUTH_BACKEND: airflow.www.auth.backend.auth_backend_password
+          AIRFLOW__WEBSERVER__ENABLE_PROXY_FIX: "true"
+          AIRFLOW__WEBSERVER__SECRET_KEY: thisISaSECRET_1234
+          AIRFLOW_CORE_DAGS_FOLDER: /stackable/app/git-0/current/airflowDags
+        podOverrides:
+          spec:
+            containers:
+            - name: airflow
+              resources:
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+        replicas: 1
+status:
+  conditions:
+  - lastTransitionTime: "2025-06-24T15:17:50Z"
+    lastUpdateTime: "2025-06-24T15:17:53Z"
+    message: StatefulSet ["airflow-scheduler-default", "airflow-webserver-default",
+      "airflow-worker-default"] missing ready replicas.
+    status: "False"
+    type: Available
+  - lastUpdateTime: "2025-06-24T15:17:53Z"
+    message: The cluster is reconciled normally.
+    status: "False"
+    type: ReconciliationPaused
+  - lastUpdateTime: "2025-06-24T15:17:53Z"
+    message: The cluster is running.
+    status: "False"
+    type: Stopped
