@@ -1,4 +1,3 @@
-# data_generator.py (Korrigierte Logik für Nutzungsgrad)
 import os
 import io
 import random
@@ -27,9 +26,7 @@ def generate_csv_data(module_name, start_timestamp, num_rows, interval_minutes):
     for _ in range(num_rows):
         valuedate_str = current_timestamp.strftime('%d.%m.%Y %H:%M:%S')
         
-        base_value = random.uniform(50.0, 200.0)
-        if "Nutzungsgrad" in module_name:
-            base_value = random.uniform(0.0, 1.0) 
+        base_value = random.uniform(0.0, 1.0)
 
         min_val = base_value * random.uniform(0.9, 0.98)
         max_val = base_value * random.uniform(1.02, 1.1)
@@ -68,7 +65,8 @@ if __name__ == "__main__":
         print(f"Fehler bei der Verbindung zu MinIO: {e}")
         exit()
 
-    now = datetime.now()
+    current = datetime.now()
+    now = current.replace(year=current.year - 2)
     print(f"\n[{now.strftime('%Y-%m-%d %H:%M:%S')}] Generiere eine neue Daten-Charge...")
 
     for module in MODULES_TO_SIMULATE:
