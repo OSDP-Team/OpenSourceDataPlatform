@@ -64,8 +64,7 @@ if __name__ == "__main__":
         print(f"Fehler bei der Verbindung zu MinIO: {e}")
         exit()
 
-    current = datetime.now()
-    now = current.replace(year=current.year - 2)
+    now = datetime.now() - timedelta(months=31)
     print(f"\n[{now.strftime('%Y-%m-%d %H:%M:%S')}] Generiere eine neue Daten-Charge...")
 
     for module in MODULES_TO_SIMULATE:
