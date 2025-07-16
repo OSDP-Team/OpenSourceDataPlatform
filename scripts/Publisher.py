@@ -27,7 +27,7 @@ def generate_csv_data(module_name, start_timestamp, num_rows, interval_minutes):
     for _ in range(num_rows):
         valuedate_str = current_timestamp.strftime('%d.%m.%Y %H:%M:%S')
         
-        base_value = random.uniform(0.0, 1.0)
+        base_value = random.uniform(0.0, 0.2)
 
         min_val = base_value * random.uniform(0.9, 0.98)
         max_val = base_value * random.uniform(1.02, 1.1)

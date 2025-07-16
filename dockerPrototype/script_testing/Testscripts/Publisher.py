@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 
 LOCAL_OUTPUT_DIR = "generated_bronze_data"
 
+SIMULATION_DATE_STR = "2023-01-02"
+
 MODULES_TO_SIMULATE = [
     {"name": "Strom_GOM_M1", "interval": "15_min"},
     {"name": "Strom_GOM_M2", "interval": "15_min"},
@@ -11,7 +13,7 @@ MODULES_TO_SIMULATE = [
     {"name": "Waerme_GOM_M2", "interval": "15_min"},
 ]
 
-def generate_csv_data(module_name, timestamp, is_daily_summary=False):
+def generate_csv_data(module_name, timestamp):
     """
     Erzeugt CSV-Daten für einen einzelnen Messpunkt.
     Wenn is_daily_summary=True, werden die Werte als Tageszusammenfassung generiert.
@@ -43,12 +45,17 @@ if __name__ == "__main__":
     
     os.makedirs(LOCAL_OUTPUT_DIR, exist_ok=True)
     
-    current = datetime.now()
-    now = current.replace(year=current.year - 2)
-    print(f"\n[{now.strftime('%Y-%m-%d %H:%M:%S')}] Generiere eine neue Daten-Charge...")
+    try:
+        simulation_date = datetime.strptime(SIMULATION_DATE_STR, "%Y-%m-%d")
+    except ValueError:
+        print(f"FEHLER: Ungültiges Datumsformat in SIMULATION_DATE_STR. Bitte YYYY-MM-DD verwenden.")
+        exit()
+    
+    print(f"\n[{simulation_date.strftime('%Y-%m-%d %H:%M:%S')}] Generiere eine neue Daten-Charge...")
+    
 
     for module in MODULES_TO_SIMULATE:
-        filename = f"messwerte_{now.strftime('%Y%m%d_%H%M%S')}_{module['name']}.csv"
+        filename = f"messwerte_{simulation_date.strftime('%Y%m%d_%H%M%S')}_{module['name']}.csv"
         
         partition_path = os.path.join(
             LOCAL_OUTPUT_DIR,
@@ -62,14 +69,14 @@ if __name__ == "__main__":
 
         data_content = None
         if module["interval"] == "15_min":
-            timestamp_to_generate = now - timedelta(minutes=15)
-            data_content = generate_csv_data(module['name'], timestamp_to_generate, is_daily_summary=False)
+            timestamp_to_generate = simulation_date - timedelta(minutes=15)
+            data_content = generate_csv_data(module['name'], timestamp_to_generate)
             print(f"  -> Generiere 15-Minuten-Daten für Modul '{module['name']}'...")
             
         elif module["interval"] == "Täglich":
-            yesterday = now - timedelta(days=1)
+            yesterday = simulation_date - timedelta(days=1)
             start_of_yesterday = datetime(yesterday.year, yesterday.month, yesterday.day)
-            data_content = generate_csv_data(module['name'], start_of_yesterday, is_daily_summary=True)
+            data_content = generate_csv_data(module['name'], start_of_yesterday)
             print(f"  -> Generiere Tages-Daten für Modul '{module['name']}' für den {start_of_yesterday.date()}...")
 
         if data_content:
