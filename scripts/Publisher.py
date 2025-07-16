@@ -13,7 +13,7 @@ MODULES_TO_SIMULATE = [
     {"name": "Strom_GOM_M1", "interval": "15_min"},
     {"name": "Strom_GOM_M2", "interval": "15_min"},
     {"name": "Nutzungsgrad_GOM_M3_el", "interval": "Täglich"},
-    {"name": "Nutzungsgrad_GOM_M3_th", "interval": "15_min"},
+    {"name": "Nutzungsgrad_GOM_M1_el", "interval": "15_min"},
 ]
 
 def generate_csv_data(module_name, start_timestamp, num_rows, interval_minutes):
