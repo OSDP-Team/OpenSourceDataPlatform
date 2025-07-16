@@ -9,6 +9,8 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
 BRONZE_BUCKET = "bronze"
 
+SIMULATION_DATE_STR = "2023-01-02"
+
 MODULES_TO_SIMULATE = [
     {"name": "Strom_GOM_M1", "interval": "15_min"},
     {"name": "Strom_GOM_M2", "interval": "15_min"},
@@ -50,6 +52,12 @@ if __name__ == "__main__":
     print("Starte Daten-Generator (einmalige Ausführung)...")
     
     try:
+        simulation_date = datetime.strptime(SIMULATION_DATE_STR, "%Y-%m-%d")
+    except ValueError:
+        print(f"FEHLER: Ungültiges Datumsformat in SIMULATION_DATE_STR. Bitte YYYY-MM-DD verwenden.")
+        exit()
+    
+    try:
         minio_client = Minio(
             MINIO_ENDPOINT,
             access_key=MINIO_ACCESS_KEY,
@@ -64,21 +72,20 @@ if __name__ == "__main__":
         print(f"Fehler bei der Verbindung zu MinIO: {e}")
         exit()
 
-    now = datetime.now() - timedelta(months=31)
-    print(f"\n[{now.strftime('%Y-%m-%d %H:%M:%S')}] Generiere eine neue Daten-Charge...")
+    print(f"\n[{simulation_date.strftime('%Y-%m-%d %H:%M:%S')}] Generiere eine neue Daten-Charge...")
 
     for module in MODULES_TO_SIMULATE:
-        filename = f"messwerte_{now.strftime('%Y%m%d_%H%M%S')}_{module['name']}.csv"
+        filename = f"messwerte_{simulation_date.strftime('%Y%m%d_%H%M%S')}_{module['name']}.csv"
         object_name = f"modul={module['name']}/intervall={module['interval']}/{filename}"
         
         data = None
         if module["interval"] == "15_min":
-            timestamp_to_generate = now - timedelta(minutes=15)
+            timestamp_to_generate = simulation_date - timedelta(minutes=15)
             data = generate_csv_data(module['name'], timestamp_to_generate, 96, 15)
             print(f"  -> Generiere 15-Minuten-Daten für Modul '{module['name']}'...")
             
         elif module["interval"] == "Täglich":
-            yesterday = now - timedelta(days=1)
+            yesterday = simulation_date - timedelta(days=1)
             start_of_yesterday = datetime(yesterday.year, yesterday.month, yesterday.day)
             data = generate_csv_data(module['name'], start_of_yesterday, 96, 1440)
             print(f"  -> Generiere Tages-Daten für Modul '{module['name']}' für den {start_of_yesterday.date()}...")
