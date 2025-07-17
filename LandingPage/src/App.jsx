@@ -26,7 +26,7 @@ import azure from './assets/azure.png';
 import kubernetes from './assets/kubernetes.png'; 
 
 const osServices = [
-    { img: jupyter, headline: "Jupyterhub", text: "Die Entwicklungsumgebung auf der Cloud mit Versionierung über GitHub.", path: "10.0.194.12", buttonName: "Zum Service" },
+    { img: jupyter, headline: "Jupyterhub", text: "Die Entwicklungsumgebung auf der Cloud mit Versionierung über GitHub.", path: "http://10.0.194.12/", buttonName: "Zum Service" },
     { img: minio, headline: "MinIO", text: "Speicherort für Roh- und verarbeiteter Daten. Zielort der Medaillon-Architektur.", path: "http://localhost:9001/",buttonName: "Zum Service" },
     { img: keycloak, headline: "Keycloak", text: "Zentrales Authentifizierungstool, zur Verwaltung von Zugangsdaten.", path: "https://10.0.234.7:8443/", buttonName: "Zum Service" },
     { img: superset, headline: "Superset", text: "BI-Tool zur Visualisierung der verarbeiteten Daten in Form von Dashboards.", path: "http://10.0.176.231:8088/", buttonName: "Zum Service" },
