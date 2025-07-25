@@ -5,7 +5,7 @@ metadata:
 type: Opaque
 stringData:
   user: "LeartIGashi"
-  password: "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"
+  password: "xxx"
 ---
 apiVersion: v1
 kind: Secret
